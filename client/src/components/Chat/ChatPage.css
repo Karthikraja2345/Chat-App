@@ -1,0 +1,306 @@
+/* src/components/Chat/ChatPage.css */
+
+.chat-page-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* Prevent body scroll */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5; /* Light gray background for the whole page */
+}
+
+.sidebar {
+    width: 30%;
+    min-width: 300px; /* Minimum width for the sidebar */
+    max-width: 400px; /* Maximum width */
+    background-color: #ffffff; /* White background for sidebar */
+    border-right: 1px solid #d1d7db; /* Subtle border */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Scroll for chat list if it overflows */
+}
+
+.sidebar-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9edef; /* Lighter border for header */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f0f2f5; /* Header background consistent with app bg */
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #111b21; /* Darker text color */
+}
+
+.sidebar-header button {
+    background: #00a884; /* WhatsApp green */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.sidebar-header button:hover {
+    background: #008a70;
+}
+
+
+.chat-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #e5ddd5; /* WhatsApp-like chat background pattern (you'd use an image for pattern) */
+    /* background-image: url('/path-to-your-chat-bg-pattern.png'); */
+}
+
+.no-chat-selected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: #4a4a4a;
+    font-size: 18px;
+    flex-direction: column;
+    background-color: #f8f9fa; /* Slightly off-white for the placeholder area */
+}
+.no-chat-selected p {
+    max-width: 300px;
+}
+
+/* UserList specific styles (can be moved to UserList.css) */
+.user-list-container {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.search-bar-container {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e9edef;
+}
+
+.search-input {
+    width: calc(100% - 20px); /* Account for padding */
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #d1d7db;
+    font-size: 14px;
+    background-color: #f0f2f5; /* Light gray for input field */
+}
+.search-input:focus {
+    outline: none;
+    border-color: #00a884;
+}
+
+.search-results-list, .chat-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.search-results-list h4 {
+    font-size: 12px;
+    color: #667781;
+    padding: 10px 20px 5px;
+    margin:0;
+    text-transform: uppercase;
+}
+
+.user-list-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f2f5; /* Very subtle separator */
+    transition: background-color 0.2s ease-in-out;
+}
+
+.user-list-item:hover {
+    background-color: #f5f6f6; /* Light hover effect */
+}
+
+.user-list-item.selected {
+    background-color: #e9edef; /* Slightly darker for selected chat */
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+}
+.avatar.small-avatar {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+
+.user-info {
+    flex-grow: 1;
+    overflow: hidden; /* Prevents text from pushing out */
+}
+
+.user-name {
+    font-weight: 500;
+    color: #111b21;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.last-message {
+    font-size: 0.85em;
+    color: #667781; /* Grayish text for last message */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.no-results, .no-chats {
+    padding: 20px;
+    text-align: center;
+    color: #667781;
+}
+
+/* ChatWindow specific styles (can be moved to ChatWindow.css) */
+.chat-window-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-grow: 1;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    background-color: #f0f2f5; /* Consistent header background */
+    border-bottom: 1px solid #d1d7db;
+}
+
+.chat-header .chat-info {
+    margin-left: 10px;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #111b21;
+}
+.chat-header small {
+    font-size: 12px;
+    color: #667781;
+}
+.typing-indicator {
+    font-style: italic;
+    color: #00a884; /* Green for typing indicator */
+}
+
+
+/* MessageList styles (can be in MessageList.css) */
+.message-list-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: #e5ddd5; /* Chat background */
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 18px; /* More rounded bubbles */
+    margin-bottom: 10px;
+    word-wrap: break-word;
+    line-height: 1.4;
+    font-size: 14.5px;
+    position: relative; /* For timestamp */
+}
+
+.message-bubble.sent {
+    background-color: #dcf8c6; /* Light green for sent messages */
+    align-self: flex-end;
+    border-bottom-right-radius: 4px; /* WhatsApp like tail */
+}
+
+.message-bubble.received {
+    background-color: #ffffff; /* White for received messages */
+    align-self: flex-start;
+    border-bottom-left-radius: 4px; /* WhatsApp like tail */
+    box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+}
+.message-bubble .timestamp {
+    font-size: 0.7em;
+    color: #8a8a8a; /* Lighter gray for timestamp */
+    display: block; /* Can be block or inline-block */
+    text-align: right; /* Align to the right of the bubble */
+    margin-top: 4px;
+}
+.message-bubble.sent .timestamp {
+    /* For sent messages, timestamp can be below or inside */
+}
+.message-bubble.received .timestamp {
+    /* For received messages, timestamp can be below or inside */
+}
+.message-status {
+    font-size: 0.7em;
+    margin-left: 5px;
+    color: #aaa; /* Default status color */
+}
+.message-status.read {
+    color: #34b7f1; /* Blue for read */
+}
+
+
+/* MessageInput styles (can be in MessageInput.css) */
+.message-input-container {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f0f2f5; /* Background for input area */
+    border-top: 1px solid #d1d7db;
+}
+
+.message-input-container input[type="text"] {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px; /* More rounded input field */
+    margin-right: 10px;
+    font-size: 15px;
+    background-color: #ffffff;
+}
+.message-input-container input[type="text"]:focus {
+    outline: none;
+    border-color: #00a884;
+}
+
+.message-input-container button {
+    background-color: #00a884; /* WhatsApp green */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Circular send button */
+    width: 45px;
+    height: 45px;
+    font-size: 20px; /* Icon size */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.message-input-container button:hover {
+    background-color: #008a70;
+}
+/* Add styles for attachment button, emoji button */
+
+/* General Utility */
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
+    color: #555;
+}
