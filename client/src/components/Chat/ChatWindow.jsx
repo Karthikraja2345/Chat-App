@@ -1,8 +1,8 @@
 // src/components/Chat/ChatWindow.jsx
 import React, { useRef, useEffect } from 'react';
-import MessageList from './MessageList'; // Assuming MessageList is in the same folder
-import MessageInput from './MessageInput'; // Assuming MessageInput is in the same folder
-import './ChatPage.css'; // Or a specific ChatWindow.css
+import MessageList from './MessageList';
+import MessageInput from './MessageInput';
+import './ChatPage.css';
 
 const ChatWindow = ({
     chat,
@@ -13,8 +13,9 @@ const ChatWindow = ({
     newMessage,
     onNewMessageChange,
     typingIndicator,
-    // Add props for file upload, payment split trigger etc.
-    // onImageUpload, onPdfUpload, onPaymentSplit
+    onFileSelectedForPreview,
+    isFileBeingProcessed, // This prop means "dialog is open OR actual upload is in progress"
+    isActuallyUploading,  // This prop means "network request for upload is in progress"
 }) => {
     const messagesEndRef = useRef(null);
 
@@ -24,13 +25,12 @@ const ChatWindow = ({
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]); // Scroll to bottom when new messages arrive
+    }, [messages]);
 
     if (!chat) {
-        return <div className="chat-window placeholder">Select a chat to start messaging.</div>;
+        return <div className="chat-window placeholder no-chat-selected"><p>Select a chat to start messaging.</p></div>;
     }
 
-    // Function to get the other participant in a 1-on-1 chat
     const getChatPartner = (chatToProcess) => {
         if (chatToProcess && !chatToProcess.isGroupChat && chatToProcess.participants) {
             return chatToProcess.participants.find(p => p._id !== currentUser._id);
@@ -38,47 +38,48 @@ const ChatWindow = ({
         return null;
     };
 
-    const chatName = chat.isGroupChat ? chat.name : getChatPartner(chat)?.name || "Chat";
-    const chatAvatar = chat.isGroupChat
-        ? chat.groupIcon || 'https://via.placeholder.com/40?text=G'
-        : getChatPartner(chat)?.profilePicture || 'https://via.placeholder.com/40?text=?';
-
+    const chatPartner = !chat.isGroupChat ? getChatPartner(chat) : null;
+    const chatName = chat.isGroupChat ? chat.name : chatPartner?.name || "Chat";
+    const chatAvatarSrc = chat.isGroupChat
+        ? chat.groupIcon || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.name || 'G')}&background=random&size=40`
+        : chatPartner?.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPartner?.name || '?')}&background=random&size=40`;
 
     return (
         <div className="chat-window-container">
             <div className="chat-header">
-                <img src={chatAvatar} alt="avatar" className="avatar small-avatar" />
+                <img src="src/assets/male.png" alt={`${chatName} avatar`} className="avatar small-avatar" />
                 <div className="chat-info">
                     <h3>{chatName}</h3>
                     {typingIndicator && <small className="typing-indicator">{typingIndicator}</small>}
-                    {!typingIndicator && chat.isGroupChat && (
+                    {!typingIndicator && isFileBeingProcessed && <small className="typing-indicator" style={{ fontStyle: 'italic', color: isActuallyUploading ? '#007bff' : '#6c757d' }}>
+                        {isActuallyUploading ? 'Uploading file...' : 'Preparing file...'}
+                    </small>}
+                    {!typingIndicator && !isFileBeingProcessed && chat.isGroupChat && (
                         <small>{chat.participants?.length} members</small>
                     )}
-                     {!typingIndicator && !chat.isGroupChat && getChatPartner(chat)?.online && (
+                     {!typingIndicator && !isFileBeingProcessed && !chat.isGroupChat && chatPartner?.online && (
                         <small style={{color: 'green'}}>Online</small>
                     )}
-                    {!typingIndicator && !chat.isGroupChat && !getChatPartner(chat)?.online && getChatPartner(chat)?.lastSeen && (
-                        <small>Last seen {new Date(getChatPartner(chat).lastSeen).toLocaleTimeString()}</small>
+                    {!typingIndicator && !isFileBeingProcessed && !chat.isGroupChat && !chatPartner?.online && chatPartner?.lastSeen && (
+                        <small>Last seen {new Date(chatPartner.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                     )}
                 </div>
-                {/* Add more icons for info, call, etc. */}
             </div>
 
             <MessageList
                 messages={messages}
                 currentUser={currentUser}
                 loading={loadingMessages}
+                chat={chat}
             />
-            <div ref={messagesEndRef} /> {/* Element to scroll to */}
+            <div ref={messagesEndRef} />
 
             <MessageInput
                 newMessage={newMessage}
                 onNewMessageChange={onNewMessageChange}
                 onSendMessage={onSendMessage}
-                // Pass handlers for attachments
-                // onImageUpload={onImageUpload}
-                // onPdfUpload={onPdfUpload}
-                // onPaymentSplit={onPaymentSplit}
+                onFileSelectedForPreview={onFileSelectedForPreview}
+                isFileBeingProcessed={isFileBeingProcessed}
             />
         </div>
     );

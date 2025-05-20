@@ -1,0 +1,169 @@
+/* src/components/Chat/MessageBubble.css */
+.message-bubble-wrapper {
+    display: flex;
+    margin-bottom: 2px; /* Minimal space between distinct messages */
+    max-width: 75%; /* Max width of the entire bubble wrapper */
+}
+
+.message-bubble-wrapper.sent {
+    justify-content: flex-end; /* Aligns sent messages to the right */
+    align-self: flex-end; /* Ensures the wrapper itself aligns right in MessageList */
+}
+
+.message-bubble-wrapper.received {
+    justify-content: flex-start; /* Aligns received messages to the left */
+    align-self: flex-start;
+}
+
+.message-bubble {
+    padding: 7px 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    word-wrap: break-word;
+    position: relative; /* For potential future pseudo-elements like tails */
+    line-height: 1.4;
+}
+
+.message-bubble-wrapper.sent .message-bubble {
+    background-color: #dcf8c6; /* WhatsApp sent green */
+    color: #303030;
+    border-bottom-right-radius: 0; /* Tail effect */
+}
+
+.message-bubble-wrapper.received .message-bubble {
+    background-color: #ffffff;
+    color: #303030;
+    border-bottom-left-radius: 0; /* Tail effect */
+}
+
+.sender-name-display {
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: #007bff; /* Or derive from user color */
+}
+
+.message-content-area {
+    /* Container for actual text or file/media block */
+}
+
+.message-text-content {
+    margin: 0;
+    white-space: pre-wrap; /* Preserves newlines and spaces */
+    font-size: 0.95em;
+}
+
+/* Media (Image/Video/Audio) */
+.message-media-container {
+    display: flex;
+    flex-direction: column;
+}
+.message-image-content {
+    max-width: 100%; /* Constrained by bubble width */
+    max-height: 300px; /* Limit height */
+    border-radius: 6px;
+    object-fit: cover; /* Or 'contain' depending on preference */
+    cursor: pointer; /* If you add a lightbox/viewer */
+}
+.message-video-content {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 6px;
+}
+.message-audio-content {
+    width: 100%; /* Take full width of bubble */
+    max-width: 250px; /* Don't let it get too wide */
+    margin-top: 5px;
+}
+
+
+/* File Attachments */
+.message-file-container {
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.03); /* Slight background for file block */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    padding: 8px 10px;
+    gap: 10px; /* Space between icon and info */
+    margin-top: 5px; /* If there's text content above or for spacing */
+}
+
+.file-icon-wrapper .file-type-icon {
+    font-size: 2em; /* Size of the react-icon */
+    color: #555; /* Default icon color */
+}
+
+.file-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* For text-overflow */
+    flex-grow: 1;
+}
+
+.file-name-text {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9em;
+    color: #333;
+    margin-bottom: 2px;
+}
+.download-icon-link {
+    color: #007bff;
+    margin-left: 8px;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+.download-icon-link:hover {
+    text-decoration: underline;
+}
+
+
+.file-meta-text {
+    font-size: 0.8em;
+    color: #777;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Pushes download icon to the right */
+}
+
+
+/* Caption Styling */
+.message-caption {
+    font-size: 0.85em;
+    color: #555;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0,0,0,0.05); /* Separator if file is above */
+    white-space: pre-wrap;
+}
+.message-caption.file-caption { /* Specific for file captions if no media above */
+    border-top: none;
+}
+
+
+/* Meta Info (Timestamp, Status) */
+.message-meta-display {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 0.7em;
+    color: #888;
+    margin-top: 4px;
+    height: 15px; /* For consistent alignment */
+    line-height: 15px;
+}
+.message-bubble-wrapper.sent .message-meta-display {
+    color: #6b7780; /* Slightly different color for sent meta */
+}
+.timestamp-display {
+    margin-right: 5px;
+}
+.message-status-display {
+    font-weight: bold; /* Make ticks bold */
+}
+.status-read span { /* For the blue ticks */
+    color: #53bdeb !important;
+}

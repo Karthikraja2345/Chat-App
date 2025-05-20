@@ -1,0 +1,36 @@
+Preparing PPT
+
+Research -> Outline -> Design
+
+perplexity.ai - Reasearch about any topic (We can ask here to make the ppt with clear thoughts)
+
+
+good prompt - make by ai
+
+Gamma - to make ppt
+
+suno - run the songs(own lyrics created by chatgpt) before start the ppt presentation
+
+12ft.io, archieve.ph - to clear the pay wall 
+
+merlin chrome extension - summarize the article, generating the linkedIn post(paragraph), generate the summary of the podcost
+
+
+NotebookLM - takes multiple resources of one topic(book, youtbe video) and answers for our questions, generate podcost of the PPT
+
+Anna's-archieve.org - download the books which are at high cost
+
+grok - to create the image according to pur prompt
+
+app.yoodli - Commucation coach
+
+gemini - for the developing the code
+blackbox.ai - to debug the code
+
+cluade.ai - Data analysis tool
+
+Be10x - ATS Resume Generator - create ATS(Applicant Tracking System) friendly resume
+
+trueup - live layoff tracker
+
+AI Career Accelerator Inner Circle
