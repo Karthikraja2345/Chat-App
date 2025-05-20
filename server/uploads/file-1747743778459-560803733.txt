@@ -1,0 +1,78 @@
+59 E6 77 6C - Duraisingh
+D9 D6 6A 6C - Perumal
+#include <MFRC522.h>
+#include <SPI.h>
+
+// RFID module pins
+#define SS_PIN 5
+#define RST_PIN 22
+
+MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
+
+// Define the structure for the products
+struct Product {
+  String name;
+  String rfidTag;
+  bool added;  // Whether the product is in the system (added = true, removed = false)
+};
+
+// Array of products (adjust as needed)
+Product products[4] = {
+  {"Butterscotch Ice cream", "59e6776c", false},
+  {"Chips", "d9d66a6c", false},
+  {"Rose Milk", "16a1b73", false},
+  {"Badam Milk", "b3985222", false}
+};
+
+void setup() {
+  Serial.begin(115200);
+  SPI.begin();  // Initialize SPI bus
+  mfrc522.PCD_Init();  // Initialize MFRC522 RFID reader
+
+  Serial.println("Place your RFID tag near the reader.");
+}
+
+void loop() {
+  // Check if the RFID tag is present
+  if (mfrc522.PICC_IsNewCardPresent()) {
+    if (mfrc522.PICC_ReadCardSerial()) {
+      // Read the RFID tag serial number
+      String rfidTag = "";
+      for (byte i = 0; i < mfrc522.uid.size; i++) {
+        rfidTag += String(mfrc522.uid.uidByte[i], HEX);
+      }
+
+      Serial.println("RFID tag detected: " + rfidTag);
+
+      // Search for the product in the array
+      bool found = false;
+      for (int i = 0; i < 4; i++) {
+        if (products[i].rfidTag == rfidTag) {
+          found = true;
+          if (products[i].added) {
+            // If the product is already added, remove it
+            products[i].added = false;
+            Serial.println(products[i].name + " removed.");
+          } else {
+            // If the product is not added, add it
+            products[i].added = true;
+            Serial.println(products[i].name + " added.");
+          }
+          break;
+        }
+      }
+
+      if (!found) {
+        Serial.println("Product not found in system.");
+      }
+
+      // Wait for the card to be removed before allowing another scan
+      while (mfrc522.PICC_IsNewCardPresent()) {
+        delay(50);  // Check every 50ms to avoid continuous looping
+      }
+
+      // Optional: Add a small delay before the next scan is processed
+      delay(500);  // Adjust the delay as needed
+    }
+  }
+}

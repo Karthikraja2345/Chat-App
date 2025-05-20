@@ -1,0 +1,150 @@
+/* src/components/Chat/FileUploadConfirmationDialog.css */
+.confirmation-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050; /* High z-index */
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.confirmation-dialog {
+    background-color: #ffffff;
+    padding: 20px 25px;
+    border-radius: 12px; /* Softer radius */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 480px; /* Slightly wider for better layout */
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* Prevent dialog from being too tall */
+    overflow-y: auto; /* Add scroll if content exceeds max-height */
+}
+
+.confirmation-dialog h2 {
+    margin-top: 0;
+    margin-bottom: 20px; /* More space */
+    font-size: 1.5em; /* Larger title */
+    color: #2c3e50; /* Darker, more modern color */
+    text-align: center;
+    font-weight: 600;
+}
+
+.file-preview-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 180px; /* Taller preview area */
+    max-height: 350px;
+    margin-bottom: 20px;
+    background-color: #f4f6f8; /* Lighter, neutral background */
+    border: 1px dashed #d1d9e0; /* Dashed border */
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 10px; /* Padding inside preview area */
+    box-sizing: border-box;
+}
+
+.file-preview-image,
+.file-preview-video {
+    max-width: 100%;
+    max-height: 330px; /* Max height within padding */
+    object-fit: contain;
+    display: block;
+    border-radius: 6px; /* Rounded corners for media */
+}
+
+.file-icon-large {
+    font-size: 4.5em; /* Larger icon */
+    color: #7f8c8d; /* Softer icon color */
+}
+
+.file-details {
+    font-size: 0.95em; /* Slightly larger details text */
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: #34495e;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+}
+
+.file-details p {
+    margin: 5px 0;
+    word-break: break-all;
+}
+
+.file-details strong {
+    color: #2c3e50;
+}
+
+.caption-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    font-size: 1em;
+    resize: vertical;
+    box-sizing: border-box;
+    min-height: 70px; /* At least 3 rows visually */
+    transition: border-color 0.2s ease;
+}
+
+.caption-input:focus {
+    outline: none;
+    border-color: var(--primary-color, #008069); /* Use theme variable */
+    box-shadow: 0 0 0 2px rgba(0, 128, 105, 0.2); /* Focus ring */
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px; /* More space between buttons */
+}
+
+.dialog-actions button {
+    padding: 10px 20px; /* More padding */
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    min-width: 100px; /* Ensure buttons have decent width */
+}
+
+.dialog-actions button:active {
+    transform: translateY(1px); /* Slight press effect */
+}
+
+.dialog-actions .cancel-btn {
+    background-color: #ecf0f1; /* Lighter cancel button */
+    color: #7f8c8d;
+    border: 1px solid #dce4ec; /* Subtle border */
+}
+.dialog-actions .cancel-btn:hover {
+    background-color: #e0e6e8;
+}
+
+.dialog-actions .share-btn {
+    background-color: var(--primary-color, #008069);
+    color: white;
+}
+.dialog-actions .share-btn:hover {
+    background-color: var(--primary-dark, #00705a);
+}
+.dialog-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #bdc3c7; /* More visible disabled state */
+}
+.dialog-actions .share-btn:disabled {
+    background-color: var(--primary-color, #008069); /* Keep color but reduce opacity */
+    opacity: 0.6;
+}

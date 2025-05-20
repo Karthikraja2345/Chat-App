@@ -8,14 +8,39 @@ import { FaUsersCog, FaInfoCircle } from 'react-icons/fa';
 import './ChatWindow.css';
 
 const ChatWindow = ({
-    chat, messages, loadingMessages, currentUser,
-    onSendMessage, newMessage, onNewMessageChange,
-    typingIndicator, onChatUpdated,
+    chat,
+    messages,
+    loadingMessages,
+    currentUser,
+    onSendMessage,
+    newMessage,
+    onNewMessageChange,
+    typingIndicator,
+    onFileSelectedForPreview,
+    isFileBeingProcessed, // This prop means "dialog is open OR actual upload is in progress"
+    isActuallyUploading,  // This prop means "network request for upload is in progress"
 }) => {
     const messagesEndRef = useRef(null);
     const [showGroupInfoModal, setShowGroupInfoModal] = useState(false);
     const [showUserProfileModal, setShowUserProfileModal] = useState(false);
     const [selectedProfileUser, setSelectedProfileUser] = useState(null);
+
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    if (!chat) {
+        return <div className="chat-window placeholder no-chat-selected"><p>Select a chat to start messaging.</p></div>;
+    }
+
+    const getChatPartner = (chatToProcess) => {
+        if (chatToProcess && !chatToProcess.isGroupChat && chatToProcess.participants) {
+            return chatToProcess.participants.find(p => p._id !== currentUser._id);
 
     useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -25,10 +50,18 @@ const ChatWindow = ({
     const getChatPartnerFn = () => {
         if (currentUser && chat && !chat.isGroupChat && chat.participants) {
             return chat.participants.find(p => p._id !== currentUser._id);
+
         }
         return null;
     };
-    const chatPartner = getChatPartnerFn(); // Call it to get the value
+    
+
+
+    const chatPartner = !chat.isGroupChat ? getChatPartner(chat) : null;
+    const chatName = chat.isGroupChat ? chat.name : chatPartner?.name || "Chat";
+    const chatAvatarSrc = chat.isGroupChat
+        ? chat.groupIcon || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.name || 'G')}&background=random&size=40`
+        : chatPartner?.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPartner?.name || '?')}&background=random&size=40`;
 
     const handleChatUpdatedInModal = useCallback((updatedChatData) => {
         if (onChatUpdated) { // onChatUpdated prop should be stable from ChatPage
@@ -56,10 +89,12 @@ const ChatWindow = ({
     const chatName = chat.isGroupChat ? chat.name : chatPartner?.name || "Chat";
     const chatAvatar = chat.isGroupChat ? chat.groupPic || '/default-group-avatar.png' : chatPartner?.profilePicture || '/default-avatar.png';
 
+
     return (
         <div className="chat-window-container">
             <div className="chat-header">
-                <img src={chatAvatar} alt={chatName} className="avatar chat-header-avatar" />
+           
+                <img src="src/assets/male.png" alt={chatName} className="avatar chat-header-avatar" />
                 <div className="chat-info">
                     <h3>{chatName}</h3>
                     {typingIndicator && <small className="typing-indicator" style={{ fontStyle: 'italic', color: 'gray' }}>{typingIndicator}</small>}
@@ -88,6 +123,7 @@ const ChatWindow = ({
             {!chat.isGroupChat && showUserProfileModal && selectedProfileUser && (
                 <UserProfileModal user={selectedProfileUser} onClose={handleCloseUserProfileModal} /> // Memoized
             )}
+
         </div>
     );
 };

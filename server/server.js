@@ -3,54 +3,97 @@ const express = require('express');
 const http = require('http'); // Use this for creating the server
 const { Server } = require('socket.io');
 const dotenv = require('dotenv');
+dotenv.config(); // Load .env variables at the top
+
 const cors = require('cors');
 const connectDB = require('./config/db');
 const socketHandler = require('./socket/socketHandler');
+
+const multer = require('multer'); // Still needed for the direct /api/files/upload route
+const path = require('path');
+const fs = require('fs');
+
+// Import file routes AFTER dotenv.config()
+const fileRoutes = require('./routes/fileRoutes');
+
 const chatController = require('./controllers/chatController'); // If you were planning to use setSocketIO
 
-dotenv.config();
-connectDB();
 
+connectDB();
 const app = express();
 
-// Create HTTP server
-const httpServer = http.createServer(app); // Renamed to avoid confusion
-
 app.use(cors({
-    origin: "http://localhost:5173", // Good to be specific
-    // methods: ["GET", "POST", "PUT", "DELETE"], // Add other methods if needed by CORS
-    // credentials: true // If you use cookies/sessions with CORS
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Make io instance available to controllers via req.app.get('socketio')
-// This needs to be done BEFORE routes that might use it are defined,
-// but io is initialized AFTER httpServer, so this is tricky for direct app.set here.
-// A common pattern is to pass `io` to route handlers if they need it,
-// or use `app.set` *after* `io` is initialized if routes don't need it during setup.
-// For `req.app.get('socketio')` to work in controllers, `io` needs to be set on `app`.
-// Let's initialize io and then set it.
-
-const io = new Server(httpServer, { // Pass httpServer here
-    cors: {
-        origin: "http://localhost:5173",
-        methods: ["GET", "POST", "PUT", "DELETE"] // Allow PUT for your admin routes
+// Multer storage for regular file uploads (to server/uploads)
+const mainUploadsStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadPath = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
+const mainUpload = multer({
+    storage: mainUploadsStorage,
+    limits: { fileSize: 25 * 1024 * 1024 },
+    fileFilter: function(req, file, cb) { cb(null, true); } // Basic filter
+}).single('file');
 
-// Now that io is initialized, set it on the app so controllers can access it
-app.set('socketio', io);
-// If you had a setSocketIO function in chatController:
-// chatController.setSocketIO(io);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-app.get('/', (req, res) => res.send('API Running'));
+app.get('/', (req, res) => res.send('API Running! CloudConvert Ready.'));
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/chats', require('./routes/chatRoutes')); // Correctly mounted
+app.use('/api/chats', require('./routes/chatRoutes'));
+app.use('/api/files', fileRoutes); // Handles /api/files/convert
 
-socketHandler(io);
+app.post('/api/files/upload', (req, res) => {
+    mainUpload(req, res, function (err) {
+        if (err) { /* ... multer error handling ... */ 
+            console.error('Direct upload multer error:', err);
+            return res.status(400).json({ message: err.message || "Upload failed."});
+        }
+        if (!req.file) return res.status(400).json({ message: 'No file for direct upload.' });
+        const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        res.status(200).json({
+            message: 'File uploaded successfully!',
+            fileUrl: fileUrl,
+            fileName: req.file.originalname,
+            fileType: req.file.mimetype,
+            fileSize: req.file.size,
+        });
+    });
+});
 
 const PORT = process.env.PORT || 5001;
-httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`)); // Use httpServer to listen
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: process.env.CLIENT_URL || "http://localhost:5173",
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+socketHandler(io);
+
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    const uploadsDir = path.join(__dirname, 'uploads');
+    const tempUploadsDir = path.join(__dirname, '..', 'temp_uploads'); // project_root/temp_uploads
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+    if (!fs.existsSync(tempUploadsDir)) fs.mkdirSync(tempUploadsDir, { recursive: true });
+    if (!process.env.CLOUDCONVERT_API_KEY) {
+        console.warn("WARNING: CLOUDCONVERT_API_KEYis not set in .env file. File conversion will fail.");
+    }
+});

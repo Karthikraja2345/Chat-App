@@ -1,17 +1,61 @@
 /* src/components/Chat/ChatPage.css */
 
+:root {
+    /* Define your theme variables here if not already in a global CSS file */
+    --background-main: #f0f2f5;
+    --background-content: #ffffff;
+    --background-chat-area: #e5ddd5; /* WhatsApp-like chat background */
+    --background-hover: #f5f5f5;
+    --background-selected: #00a884; /* WhatsApp green for selected items */
+    --background-selected-text: #ffffff;
+
+    --text-primary: #111b21; /* Dark text for primary content */
+    --text-secondary: #667781; /* Lighter text for secondary info, last messages */
+    --text-light: #8696a0; /* Even lighter for timestamps, status */
+    --text-on-primary: #ffffff; /* Text on primary-colored backgrounds */
+    --text-on-accent: #ffffff;
+    --text-disabled: #b0bec5; /* For disabled elements */
+
+
+    --border-color: #d1d7db;
+    --border-focus: #00a884; /* Accent color for focus states */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-pill: 24px; /* For pill-shaped inputs/buttons */
+
+    --primary-color: #008069; /* WhatsApp dark green */
+    --primary-dark: #00705a;
+    --accent-color: #00a884; /* WhatsApp bright green for accents, read receipts */
+
+    --bubble-sent-bg: #dcf8c6; /* Sent message bubble background */
+    --bubble-sent-text: #303030;
+    --bubble-received-bg: #ffffff; /* Received message bubble background */
+    --bubble-received-text: #303030;
+    --bubble-shadow: 0 1px 1px 0 rgba(0,0,0,0.06);
+
+    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+
+    --transition-fast: 0.2s ease-in-out;
+    --transition-medium: 0.3s ease-in-out;
+}
+
+
 .chat-page-container {
     display: flex;
-    height: 100%;
+    height: 100vh; /* Full viewport height */
     width: 100%;
     overflow: hidden;
     background-color: var(--background-main);
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif; /* Common chat app font */
 }
 
 /* --- Sidebar --- */
 .sidebar {
-    width: 320px; /* Consistent width */
+    width: 30%; /* Relative width, or fixed like 320px */
     min-width: 300px;
+    max-width: 400px; /* Max width for larger screens */
     background-color: var(--background-content);
     border-right: 1px solid var(--border-color);
     display: flex;
@@ -20,51 +64,52 @@
 }
 
 .sidebar-header {
-    padding: 15px 20px;
+    padding: 10px 16px;
+    min-height: 59px; /* WhatsApp header height */
     border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: var(--background-main); /* Match app background */
     flex-shrink: 0;
-    min-height: 60px;
 }
 
 .sidebar-header h3 {
     margin: 0;
-    font-size: 1.25em; /* 20px */
+    font-size: 1.15em; /* Around 18px */
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .sidebar-header button { /* Logout button */
-    background: transparent;
-    color: var(--accent-color);
-    border: 1px solid var(--accent-color);
-    padding: 6px 12px;
+    background: var(--primary-color);
+    color: var(--text-on-primary);
+    border: none;
+    padding: 8px 12px;
     border-radius: var(--border-radius-sm);
     font-size: 0.875em; /* 14px */
     font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
 }
 .sidebar-header button:hover {
-    background: var(--accent-color);
-    color: var(--text-on-accent);
+    background: var(--primary-dark);
 }
 
 .search-bar-container {
-    padding: 12px 15px;
+    padding: 8px 12px;
     border-bottom: 1px solid var(--border-color);
-    background-color: var(--background-main);
+    background-color: var(--background-content); /* Search bar bg often matches content */
     flex-shrink: 0;
 }
 
 .search-input {
     width: 100%;
-    padding: 10px 15px;
-    border-radius: var(--border-radius-pill);
-    border: 1px solid var(--border-color);
+    padding: 9px 12px;
+    border-radius: var(--border-radius-md); /* Less rounded than pill for WhatsApp style */
+    border: 1px solid transparent; /* No border initially */
     font-size: 0.9em; /* 14.4px */
-    background-color: var(--background-content);
+    background-color: var(--background-main); /* Search input bg often lighter */
     color: var(--text-primary);
     transition: var(--transition-fast);
 }
@@ -73,24 +118,26 @@
 }
 .search-input:focus {
     outline: none;
+    background-color: var(--background-content); /* BG changes on focus */
     border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(0, 121, 107, 0.2);
+    box-shadow: 0 0 0 2px rgba(0, 168, 132, 0.2); /* Focus ring with accent color */
 }
 
 .user-list-container {
     flex-grow: 1;
     overflow-y: auto;
+    background-color: var(--background-content);
 }
-.search-results-section h4, .chat-list h4 { /* Optional heading for chat list */
-    font-size: 0.75em; /* 12px */
-    color: var(--text-light);
-    padding: 15px 20px 8px;
+.search-results-section h4, .chat-list h4 {
+    font-size: 0.75em;
+    color: var(--primary-color);
+    padding: 16px 16px 8px;
     margin: 0;
     text-transform: uppercase;
     font-weight: 600;
-    background-color: var(--background-main);
+    background-color: var(--background-content);
     border-bottom: 1px solid var(--border-color);
-    position: sticky; /* Keep heading visible while scrolling list items */
+    position: sticky;
     top: 0;
     z-index: 1;
 }
@@ -98,11 +145,11 @@
 .user-list-item {
     display: flex;
     align-items: center;
-    padding: 10px 20px; /* Slightly less padding */
+    padding: 12px 16px;
     cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color); /* Separator for chat items */
     transition: var(--transition-fast);
-    min-height: 68px; /* Consistent item height */
+    min-height: 72px; /* WhatsApp chat item height */
 }
 .user-list-item:last-child {
     border-bottom: none;
@@ -113,52 +160,96 @@
 .user-list-item.selected {
     background-color: var(--background-selected);
 }
-.user-list-item.selected .user-name {
-    color: var(--background-selected-text); /* Use a specific color for selected text */
-    font-weight: 600;
+.user-list-item.selected .user-name,
+.user-list-item.selected .last-message,
+.user-list-item.selected .timestamp { /* Ensure timestamp color changes too */
+    color: var(--background-selected-text) !important;
 }
 .user-list-item.selected .last-message {
-    color: var(--primary-dark);
+    opacity: 0.9;
 }
 
+
 .avatar {
-    width: 44px;
-    height: 44px;
+    width: 49px; /* WhatsApp avatar size */
+    height: 49px;
     border-radius: 50%;
     margin-right: 15px;
     object-fit: cover;
-    background-color: #B0BEC5; /* Placeholder color */
-    border: 2px solid transparent; /* For potential active/online indicator later */
+    background-color: #ccc; /* Placeholder color */
 }
-.user-list-item.selected .avatar {
-    border-color: var(--primary-color);
+/* .user-list-item.selected .avatar { */
+    /* border: 2px solid var(--text-on-primary); Optional border for selected avatar */
+/* } */
+
+.user-info-container { /* New container for name/message and timestamp/unread */
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Align items to the top */
+    overflow: hidden;
 }
 
-.user-info {
+.user-details { /* For name and last message */
     flex-grow: 1;
-    overflow: hidden;
-    text-align: left;
+    overflow: hidden; /* To enable ellipsis */
+    padding-right: 10px; /* Space before timestamp block */
 }
 
 .user-name {
-    font-weight: 500;
+    font-weight: 500; /* Semi-bold for names */
     color: var(--text-primary);
     display: block;
-    margin-bottom: 1px;
-    font-size: 0.95em; /* 15.2px */
+    font-size: 1.05em; /* ~17px */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 2px;
 }
 
 .last-message {
-    font-size: 0.85em; /* 13.6px */
+    font-size: 0.9em; /* ~14px */
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block;
+    display: block; /* Was flex, ensure it's block */
 }
+.last-message-icon { /* For file type icons in last message */
+    margin-right: 4px;
+    vertical-align: middle;
+    color: var(--text-light); /* Or match last message color */
+}
+
+
+.meta-info { /* For timestamp and unread count */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align to the right */
+    font-size: 0.75em; /* ~12px */
+    color: var(--text-light);
+    flex-shrink: 0; /* Prevent shrinking */
+}
+.meta-info .timestamp {
+    margin-bottom: 4px;
+    white-space: nowrap;
+}
+.unread-badge {
+    background-color: var(--accent-color);
+    color: var(--text-on-accent);
+    border-radius: 50%; /* Make it round */
+    padding: 0px 6px; /* Adjust for better circle */
+    min-width: 20px; /* Min width for circle */
+    height: 20px;
+    font-size: 0.8em; /* Smaller font inside badge */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 20px; /* Ensure text is centered vertically */
+}
+
+
 .no-results, .no-chats {
     padding: 30px 20px;
     text-align: center;
@@ -172,8 +263,11 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: var(--background-chat-area);
+    /* background-color: var(--background-chat-area); Using image */
+    background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Default WhatsApp BG */
+    background-repeat: repeat; /* Or 'no-repeat center center / cover' if a single image */
     overflow: hidden;
+    position: relative; /* For potential overlays or absolute positioned elements */
 }
 
 .no-chat-selected {
@@ -182,16 +276,23 @@
     justify-content: center;
     height: 100%;
     text-align: center;
-    color: var(--text-secondary);
+    color: #4a4a4a; /* Darker text for better readability on textured bg */
     font-size: 1.1em;
     flex-direction: column;
-    background-color: var(--background-main);
     padding: 20px;
+    background-color: var(--background-main); /* Or a specific color for this state */
+}
+.no-chat-selected img { /* For WhatsApp logo */
+    width: 250px;
+    margin-bottom: 20px;
+    opacity: 0.8;
 }
 .no-chat-selected p {
     max-width: 380px;
     line-height: 1.7;
+    font-weight: 300;
 }
+
 
 .chat-window-container {
     display: flex;
@@ -203,54 +304,54 @@
 .chat-header {
     display: flex;
     align-items: center;
-    padding: 0 20px; /* Vertical padding from min-height */
-    background-color: var(--background-content);
+    padding: 0 16px;
+    background-color: var(--background-main); /* Match sidebar header */
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
-    min-height: 60px; /* Standard header height */
-    box-shadow: var(--shadow-sm);
-    position: relative; /* For z-index if needed over message list */
+    min-height: 59px;
+    position: relative;
     z-index: 2;
 }
 
-.avatar.small-avatar {
-    width: 38px; /* Slightly smaller for header */
-    height: 38px;
-    margin-right: 12px;
+.avatar.small-avatar { /* Already defined .avatar, this modifies it for header */
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
 }
 
 .chat-info {
     flex-grow: 1;
     text-align: left;
-    display: flex; /* To align name and status */
+    display: flex;
     flex-direction: column;
-    justify-content: center; /* Vertically center if header is taller */
+    justify-content: center;
 }
 
 .chat-header h3 {
     margin: 0;
-    font-size: 1.1em; /* 17.6px */
-    font-weight: 600;
+    font-size: 1em; /* ~16px */
+    font-weight: 500;
     color: var(--text-primary);
     line-height: 1.3;
 }
 .chat-header small { /* Online status / last seen */
-    font-size: 0.75em; /* 12px */
+    font-size: 0.8em; /* ~12.8px */
     color: var(--text-light);
     line-height: 1.2;
 }
 .typing-indicator {
     font-style: italic;
-    color: var(--primary-color);
+    color: var(--primary-color); /* Or accent-color for more visibility */
 }
 
 /* --- Message List --- */
 .message-list-container {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 15px 20px;
+    padding: 15px 5%; /* Use percentage for responsive padding */
     display: flex;
     flex-direction: column;
+    gap: 3px; /* Small gap between messages */
 }
 .message-list-container.no-messages {
     justify-content: center;
@@ -260,68 +361,115 @@
 }
 
 .message-bubble {
-    max-width: 70%; /* Keep this reasonable */
-    padding: 10px 15px;
-    border-radius: var(--border-radius-lg); /* Consistent rounding */
-    margin-bottom: 8px; /* Space between bubbles */
+    max-width: 65%; /* Max width of a bubble */
+    padding: 6px 9px; /* Compact padding */
+    border-radius: var(--border-radius-md);
+    margin-bottom: 2px; /* Reduced margin */
     word-wrap: break-word;
-    line-height: 1.5;
-    font-size: 0.95em; /* 15.2px */
+    line-height: 1.4;
+    font-size: 0.9em; /* ~14.4px */
     position: relative;
     box-shadow: var(--bubble-shadow);
-    text-align: left; /* Ensure text inside bubble is left-aligned */
+    text-align: left;
+    /* For message tail - see pseudo-elements below if needed */
 }
 
 .message-bubble.sent {
     background: var(--bubble-sent-bg);
     color: var(--bubble-sent-text);
     align-self: flex-end;
-    border-bottom-right-radius: var(--border-radius-sm); /* Tail effect */
+    border-bottom-right-radius: 0; /* Tail effect */
 }
 
 .message-bubble.received {
     background-color: var(--bubble-received-bg);
     color: var(--bubble-received-text);
     align-self: flex-start;
-    border: 1px solid var(--border-color); /* Subtle border for received */
-    border-bottom-left-radius: var(--border-radius-sm);
+    border-bottom-left-radius: 0; /* Tail effect */
 }
-.message-bubble.received .sender-name { /* If showing sender name for group chats */
-    font-size: 0.8em;
+.message-bubble.received .sender-name {
+    font-size: 0.85em;
     font-weight: 600;
-    color: var(--primary-color); /* Or another distinct color */
-    margin-bottom: 4px;
+    color: var(--primary-color); /* Or a distinct color per user */
+    margin-bottom: 3px;
     display: block;
 }
 
 
-.message-bubble .timestamp {
-    font-size: 0.7em; /* 11.2px */
+.message-content { /* Wrapper for text/file content if needed */
+    display: flex;
+    flex-direction: column;
+}
+.message-text {
+    white-space: pre-wrap; /* Preserve whitespace and newlines */
+}
+
+.message-file-container {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: rgba(0,0,0,0.03);
+    border-radius: var(--border-radius-sm);
+    margin-top: 5px; /* If there's text content above */
+}
+.message-file-container .file-icon {
+    font-size: 2em; /* Larger icon for files */
+    margin-right: 10px;
+    color: var(--primary-color);
+}
+.file-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.file-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9em;
+}
+.file-size {
+    font-size: 0.8em;
     color: var(--text-light);
-    display: block; /* Make it take its own line if needed */
-    margin-top: 6px;
-    text-align: right; /* Align timestamp to the right within the bubble */
+}
+.message-image {
+    max-width: 100%; /* Constrain image within bubble */
+    max-height: 300px; /* Limit image height */
+    border-radius: var(--border-radius-sm);
+    cursor: pointer; /* If you implement image zoom */
+    margin-top: 4px; /* If caption/text is present */
+}
+
+
+.message-meta { /* Container for timestamp and status */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Align to the right within bubble */
+    margin-top: 4px;
+    height: 15px; /* Fixed height for alignment */
+}
+.message-bubble .timestamp {
+    font-size: 0.7em; /* ~11px */
+    color: var(--text-light); /* Default for received */
+    margin-right: 5px; /* Space before status */
+    line-height: 15px; /* Match meta height */
 }
 .message-bubble.sent .timestamp {
-    color: rgba(255, 255, 255, 0.7); /* Lighter for sent bubble */
-}
-.message-bubble.received .timestamp {
-    color: var(--text-light);
+    color: rgba(0,0,0,0.45); /* WhatsApp uses a slightly darker gray for sent timestamp */
 }
 
 
-.message-status {
-    font-size: 0.7em;
-    margin-left: 6px;
-    color: var(--text-light);
-    display: inline-block;
+.message-status { /* For read receipts etc. */
+    font-size: 0.9em; /* Make status icons slightly larger */
+    color: var(--text-light); /* Default color (e.g., for sent, delivered) */
+    line-height: 15px; /* Match meta height */
 }
 .message-bubble.sent .message-status {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0,0,0,0.45); /* Match sent timestamp color */
 }
-.message-status.read {
-    color: var(--accent-color) !important; /* Use accent for read, important to override if needed */
-    font-weight: 500;
+.message-status.read { /* Specific for 'read' status */
+    color: var(--accent-color) !important; /* WhatsApp blue ticks */
 }
 
 
@@ -329,68 +477,87 @@
 .message-input-container {
     display: flex;
     align-items: center;
-    padding: 10px 15px;
-    background-color: var(--background-content); /* Match content background */
+    padding: 5px 10px; /* Compact padding */
+    background-color: var(--background-main); /* Match app background */
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
-    min-height: 60px;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.03); /* Subtle top shadow */
+    min-height: 52px; /* Compact height */
 }
 
-/* Placeholder for attachment/emoji buttons */
-.input-actions button {
+.input-actions { /* Container for emoji/attach buttons */
+    display: flex;
+    align-items: center;
+    margin-right: 8px; /* Space before text input */
+}
+
+.input-actions button,
+.message-input-container button.send-button { /* General styling for all buttons in input area */
     background: transparent;
     border: none;
-    color: var(--text-light);
-    font-size: 1.5em; /* 24px for icons */
+    color: var(--text-secondary); /* Icon color */
+    font-size: 1.6em; /* ~25.6px for icons */
     padding: 8px;
-    margin: 0 5px;
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-.input-actions button:hover {
-    color: var(--primary-color);
-}
-
-
-.message-input-container input[type="text"] {
-    flex-grow: 1;
-    padding: 12px 18px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-pill);
-    font-size: 0.95em;
-    background-color: #fff; /* Or var(--background-main) if you want it slightly off-white */
-    color: var(--text-primary);
-    outline: none;
-    transition: var(--transition-fast);
-}
-.message-input-container input[type="text"]::placeholder {
-    color: var(--text-light);
-}
-.message-input-container input[type="text"]:focus {
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(0, 121, 107, 0.2);
-}
-
-.message-input-container button.send-button { /* Specific class for send button */
-    background-color: var(--primary-color);
-    color: var(--text-on-primary);
-    border: none;
-    border-radius: 50%;
-    width: 42px;
-    height: 42px;
-    font-size: 1.2em; /* For send icon */
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    margin-left: 10px;
+    border-radius: 50%; /* Round buttons */
+    width: 40px;
+    height: 40px;
     transition: var(--transition-fast);
 }
+.input-actions button:hover,
 .message-input-container button.send-button:hover {
-    background-color: var(--primary-dark);
+    background-color: rgba(0,0,0,0.05); /* Subtle hover */
+    color: var(--text-primary);
 }
+
+/* Added styles for disabled buttons */
+.input-actions button:disabled,
+.message-input-container button.send-button:disabled {
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.input-actions button:disabled:hover,
+.message-input-container button.send-button:disabled:hover {
+    background-color: transparent; /* No hover effect when disabled */
+    color: var(--text-disabled);
+}
+
+.message-text-input { /* Specific class for the text input field */
+    flex-grow: 1;
+    padding: 9px 12px;
+    border: 1px solid transparent; /* No border initially */
+    border-radius: var(--border-radius-pill); /* More rounded for WhatsApp style */
+    font-size: 0.95em; /* ~15px */
+    background-color: var(--background-content);
+    color: var(--text-primary);
+    outline: none;
+    transition: var(--transition-fast);
+    min-height: 20px; /* Base height */
+    max-height: 100px; /* Limit expansion for multi-line */
+    resize: none; /* Disable manual resize */
+    line-height: 1.4;
+}
+.message-text-input::placeholder {
+    color: var(--text-light);
+}
+.message-text-input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 1px var(--border-focus); /* Subtle focus ring */
+}
+
+.message-input-container button.send-button {
+    margin-left: 8px;
+    /* Icon inside send button might need specific sizing if it's an SVG/img */
+}
+.message-input-container button.send-button img,
+.message-input-container button.send-button svg {
+    width: 24px; /* Adjust based on your icon */
+    height: 24px;
+}
+
 
 /* General Utility */
 .loading-spinner {
@@ -399,6 +566,23 @@
     font-size: 1.1em;
     color: var(--text-secondary);
 }
+
+
+/* Scrollbar styling (optional, for WebKit browsers) */
+/*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+    background: #bdbdbd; 
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #9e9e9e;
+}*/
 .sidebar-header > div { /* Wrapper for buttons */
     display: flex;
     gap: 10px;
@@ -429,3 +613,4 @@
       background: var(--accent-color);
       color: var(--text-on-accent);
   }
+
