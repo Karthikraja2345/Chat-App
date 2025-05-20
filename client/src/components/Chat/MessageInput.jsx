@@ -64,9 +64,9 @@ const MessageInput = ({
                 placeholder="Type a message..."
                 autoFocus
             />
-            <button type="submit">
+            <button type="submit" >
                 {/* <FiSend /> */}
-                Send {/* Placeholder text if not using icon */}
+                <img src="src/assets/send.svg" alt="sendImage" />
             </button>
         </form>
     );

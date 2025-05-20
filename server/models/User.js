@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     otpExpires: { type: Date },
     isVerified: { type: Boolean, default: false },
     name: { type: String },
-    profilePicture: { type: String, default: 'default.png' }, // URL to image
+    profilePicture: { type: String, default: 'client/src/assets/male.png' }, // URL to image
     status: { type: String, default: 'Hey there! I am using this app.' },
     createdAt: { type: Date, default: Date.now },
     lastSeen: { type: Date, default: Date.now },

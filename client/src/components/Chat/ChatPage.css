@@ -88,7 +88,8 @@
     border-radius: 20px;
     border: 1px solid #d1d7db;
     font-size: 14px;
-    background-color: #f0f2f5; /* Light gray for input field */
+    background-color: #f0f2f5;
+    color: black; /* Light gray for input field */
 }
 .search-input:focus {
     outline: none;
@@ -129,13 +130,11 @@
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    margin-right: 15px;
     object-fit: cover;
 }
 .avatar.small-avatar {
     width: 40px;
     height: 40px;
-    margin-right: 10px;
 }
 
 
@@ -148,7 +147,7 @@
     font-weight: 500;
     color: #111b21;
     display: block;
-    margin-bottom: 2px;
+    margin-bottom: 2pX;
 }
 
 .last-message {
@@ -207,7 +206,8 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    background-color: #e5ddd5; /* Chat background */
+    background-color: #e5ddd5;
+    color: black; /* Chat background */
 }
 
 .message-bubble {
@@ -273,6 +273,7 @@
     margin-right: 10px;
     font-size: 15px;
     background-color: #ffffff;
+    color: black;
 }
 .message-input-container input[type="text"]:focus {
     outline: none;
@@ -283,7 +284,7 @@
     background-color: #00a884; /* WhatsApp green */
     color: white;
     border: none;
-    border-radius: 50%; /* Circular send button */
+    border-radius: 20%; /* Circular send button */
     width: 45px;
     height: 45px;
     font-size: 20px; /* Icon size */
