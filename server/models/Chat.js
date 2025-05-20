@@ -1,3 +1,4 @@
+// server/models/Chat.js
 const mongoose = require('mongoose');
 
 const ChatSchema = new mongoose.Schema({
@@ -5,6 +6,7 @@ const ChatSchema = new mongoose.Schema({
     isGroupChat: { type: Boolean, default: false },
     participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     groupAdmins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Only for group chats
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },   // NEW: Who created the group
     lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' },
     // For group calendar/tasks
     tasks: [{
@@ -15,8 +17,7 @@ const ChatSchema = new mongoose.Schema({
         createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         completed: { type: Boolean, default: false },
     }],
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
-});
+    // timestamps: true // Mongoose will add createdAt and updatedAt automatically if { timestamps: true } is 2nd arg to Schema
+}, { timestamps: true }); // This will add createdAt and updatedAt automatically
 
 module.exports = mongoose.model('Chat', ChatSchema);

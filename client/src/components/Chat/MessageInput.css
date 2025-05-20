@@ -1,0 +1,82 @@
+/* client/src/components/Chat/MessageInput.css */
+
+.message-input-container { /* The form element */
+    display: flex;
+    align-items: center; /* Vertically align items */
+    padding: 10px 15px;
+    background-color: var(--background-content, #fff); /* White or light background */
+    border-top: 1px solid var(--border-color, #e0e0e0);
+    flex-shrink: 0; /* Prevent shrinking */
+    gap: 10px; /* Space between elements */
+}
+
+/* Optional: Styling for action buttons like attachment, emoji */
+.message-input-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary, #757575);
+    cursor: pointer;
+    padding: 8px; /* Make click area decent */
+    font-size: 1.3em; /* Icon size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+.message-input-action-btn:hover {
+    background-color: var(--background-hover, #f0f0f0);
+    color: var(--primary-color, #00796B);
+}
+
+.message-input-field { /* The text input itself */
+    flex-grow: 1; /* Takes up available space */
+    padding: 12px 18px;
+    border: 1px solid var(--border-color, #d0d0d0);
+    border-radius: var(--border-radius-pill, 999px); /* Pill shape input */
+    font-size: 0.95em;
+    background-color: var(--background-main, #f4f6f8); /* Slightly off-white input bg */
+    color: var(--text-primary, #212121);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-height: 44px; /* Ensure good height */
+    resize: none; /* If it were a textarea */
+}
+.message-input-field::placeholder {
+    color: var(--text-light, #9e9e9e);
+}
+.message-input-field:focus {
+    border-color: var(--primary-color, #00796B);
+    background-color: #fff;
+    box-shadow: 0 0 0 2.5px rgba(0, 121, 107, 0.25); /* Focus ring */
+}
+
+.message-input-send-btn { /* The send button */
+    background-color: var(--primary-color, #00796B);
+    color: var(--text-on-primary, #fff);
+    border: none;
+    border-radius: 50%; /* Circular button */
+    width: 44px;  /* Fixed size */
+    height: 44px;
+    font-size: 1.2em; /* For icon inside */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent shrinking */
+    transition: background-color 0.2s ease;
+}
+.message-input-send-btn:hover:not(:disabled) {
+    background-color: var(--primary-dark, #004D40);
+}
+.message-input-send-btn:disabled {
+    background-color: var(--border-color, #ccc);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+.message-input-send-btn img,
+.message-input-send-btn svg { /* For send icon */
+    width: 20px;
+    height: 20px;
+}

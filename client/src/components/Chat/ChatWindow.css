@@ -1,0 +1,105 @@
+/* client/src/components/Chat/ChatWindow.css */
+
+.chat-window-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Fill parent .chat-area */
+    background-color: var(--background-chat-area, #f0f2f5); /* Light, neutral chat background */
+    overflow: hidden; /* Prevent its own scrollbars */
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--background-content, #fff); /* White header */
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    flex-shrink: 0; /* Prevent header from shrinking */
+    min-height: 65px; /* Slightly taller header */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow */
+    position: relative;
+    z-index: 10; /* Above message list */
+}
+
+.chat-header-avatar { /* Specific class for avatar in header */
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+    background-color: var(--border-color, #ccc);
+}
+
+.chat-info {
+    flex-grow: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chat-info h3 { /* Chat name */
+    margin: 0;
+    font-size: 1.15em; /* 18.4px */
+    font-weight: 600;
+    color: var(--text-primary, #212121);
+    line-height: 1.3;
+}
+
+.chat-info small { /* Sub-info like members, online status */
+    font-size: 0.8em; /* 12.8px */
+    color: var(--text-secondary, #757575);
+    line-height: 1.2;
+    margin-top: 2px;
+}
+.chat-info small.typing-indicator {
+    color: var(--primary-color, #00796B);
+    font-style: italic;
+}
+.chat-info small.online-status { /* Specific class if you want to style online status */
+    color: #4CAF50; /* Green for online */
+    font-weight: 500;
+}
+
+.chat-action-btn { /* For info button, call button etc. */
+    background: transparent;
+    border: none;
+    color: var(--text-light, #757575);
+    cursor: pointer;
+    padding: 8px; /* Make it a bit larger click area */
+    margin-left: 10px;
+    border-radius: 50%;
+    width: 40px; /* Fixed size */
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.chat-action-btn:hover {
+    background-color: var(--background-hover, #f0f0f0);
+    color: var(--primary-color, #00796B);
+}
+
+.no-chat-selected-placeholder { /* If you have a specific placeholder inside ChatWindow */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: var(--text-secondary, #757575);
+    font-size: 1.1em;
+    padding: 20px;
+    background-image: url('/path-to-your-chat-placeholder-bg.svg'); /* Optional: subtle background pattern */
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.no-chat-selected-placeholder p {
+    max-width: 350px;
+    line-height: 1.6;
+    background-color: rgba(255,255,255,0.8); /* Slight backdrop for text if bg image used */
+    padding: 10px;
+    border-radius: 8px;
+}

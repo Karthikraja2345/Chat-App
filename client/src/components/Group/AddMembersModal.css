@@ -1,0 +1,145 @@
+/* client/src/components/Group/AddMembersModal.css */
+
+/* 
+  The .add-members-modal-backdrop and .add-members-modal-content classes 
+  are applied to the same elements as .modal-backdrop-base and .modal-content-base.
+  Their primary role here is to allow specific z-index or slight dimension overrides
+  if needed, but most appearance comes from the base classes.
+  Z-indexes should be set in your global CSS where all modal z-indexes are managed.
+  e.g., in App.css:
+  .add-members-modal-backdrop { z-index: 1060; }
+  .add-members-modal-content { z-index: 1061; max-width: 480px; } 
+*/
+
+.add-members-modal-content h3 { /* Title: "Add Members to 'GroupName'" */
+    text-align: center;
+    margin-bottom: 25px; /* More space after title */
+    font-size: 1.3em;
+    color: var(--text-primary);
+}
+
+/* Styling for the search input within this specific modal */
+.add-members-modal-content .form-group label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.add-members-modal-content .form-control#userSearchAddMember {
+    /* Specific styles for this search input if needed, otherwise inherits from global .form-control */
+    margin-bottom: 5px; /* Space before loading/results */
+}
+
+.loading-text {
+    font-size: 0.85em;
+    color: var(--text-light);
+    padding: 5px 0;
+    text-align: left;
+}
+
+.search-results-for-group {
+    max-height: 150px; /* Limit height and make scrollable */
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    margin-top: 8px;
+    margin-bottom: 15px;
+    background-color: var(--background-main); /* Slightly different background for list */
+}
+
+.user-search-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.15s ease;
+}
+.user-search-item:last-child {
+    border-bottom: none;
+}
+.user-search-item:hover {
+    background-color: var(--background-hover);
+}
+
+.user-search-item .avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    background-color: #ccc; /* Fallback */
+    flex-shrink: 0;
+}
+.user-search-item span {
+    font-size: 0.9em;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.user-search-item span small { /* For email/phone if added */
+    font-size: 0.85em;
+    color: var(--text-light);
+    display: block;
+}
+
+
+.selected-users-container {
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+.selected-users-container h4 {
+    font-size: 0.9em; /* Or use token: var(--font-size-sm); */
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-weight: 500;
+    text-align: left;
+}
+
+.selected-users-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Space between chips */
+    padding: 5px 0; /* Padding if the container needs it */
+}
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    background-color: var(--primary-color); /* Use primary color for selected */
+    color: var(--text-on-primary);
+    padding: 6px 12px;
+    border-radius: var(--border-radius-pill);
+    font-size: 0.85em;
+    line-height: 1.2;
+}
+.user-chip span {
+    margin-right: 8px;
+}
+.user-chip button { /* The 'x' button to remove a selected user */
+    background: none;
+    border: none;
+    color: var(--text-on-primary);
+    opacity: 0.7;
+    cursor: pointer;
+    font-size: 1.3em; /* Make 'x' slightly larger */
+    padding: 0;
+    margin-left: 4px; /* Adjust spacing */
+    line-height: 1; /* Critical for 'x' alignment */
+    display: flex; /* For better centering of 'x' if it's an icon later */
+    align-items: center;
+    justify-content: center;
+}
+.user-chip button:hover {
+    opacity: 1;
+}
+
+/* Ensure modal actions are styled if not using global .modal-actions */
+.add-members-modal-content .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 15px; /* Add some space above buttons */
+    border-top: 1px solid var(--border-color); /* Separator line */
+}

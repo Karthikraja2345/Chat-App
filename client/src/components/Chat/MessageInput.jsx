@@ -1,72 +1,38 @@
 // src/components/Chat/MessageInput.jsx
-import React, { useState, useRef } from 'react';
-// import { FiSend, FiPaperclip, FiSmile } from 'react-icons/fi'; // Example using react-icons
-import './ChatPage.css'; // Or a specific MessageInput.css
+import React from 'react'; // Removed useState and useRef from import
+// import { FiSend } from 'react-icons/fi'; // Or your preferred send icon
+import './MessageInput.css'; // Ensure this path is correct or remove if not used
 
 const MessageInput = ({
     newMessage,
     onNewMessageChange,
     onSendMessage,
-    // onImageUpload,
-    // onPdfUpload,
-    // onPaymentSplit
 }) => {
-    // const fileInputRef = useRef(null);
-
-    // const handleAttachmentClick = () => {
-    //     fileInputRef.current.click();
-    // };
-
-    // const handleFileChange = (e) => {
-    //     const file = e.target.files[0];
-    //     if (file) {
-    //         if (file.type.startsWith('image/')) {
-    //             // onImageUpload(file);
-    //         } else if (file.type === 'application/pdf') {
-    //             // onPdfUpload(file);
-    //         } else {
-    //             alert('Unsupported file type. Please upload an image or PDF.');
-    //         }
-    //     }
-    //     // Reset file input to allow selecting the same file again if needed
-    //     if (fileInputRef.current) {
-    //         fileInputRef.current.value = "";
-    //     }
-    // };
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+        if (newMessage.trim()) {
+            onSendMessage(e);
+        }
+    };
 
     return (
-        <form className="message-input-container" onSubmit={onSendMessage}>
-            {/* Attachment Button - Placeholder */}
-            {/*
-            <button type="button" onClick={handleAttachmentClick} className="attachment-btn" style={{marginRight: '8px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '20px'}}>
-                <FiPaperclip />
-            </button>
-            <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
-                accept="image/*,application/pdf"
-            />
-            */}
-
-            {/* Emoji Button - Placeholder */}
-            {/*
-            <button type="button" className="emoji-btn" style={{marginRight: '8px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '20px'}}>
-                <FiSmile />
-            </button>
-            */}
-
+        <form className="message-input-container" onSubmit={handleFormSubmit}>
             <input
                 type="text"
+                className="message-input-field"
                 value={newMessage}
-                onChange={onNewMessageChange} // This should be the combined typing handler from ChatPage
+                onChange={onNewMessageChange}
                 placeholder="Type a message..."
                 autoFocus
             />
-            <button type="submit" >
-                {/* <FiSend /> */}
-                <img src="src/assets/send.svg" alt="sendImage" />
+            <button
+                type="submit"
+                className="message-input-send-btn"
+                disabled={!newMessage.trim()}
+            >
+                {/* For Vite, if send.svg is in public/assets: <img src="/assets/send.svg" ... /> */}
+                {/* Or if imported: import sendIcon from '/src/assets/send.svg'; <img src={sendIcon} ... /> */}
+                <img src="/src/assets/send.svg" alt="Send" style={{ width: '20px', height: '20px', display: 'block' }} />
             </button>
         </form>
     );

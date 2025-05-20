@@ -1,0 +1,103 @@
+/* client/src/components/Chat/UserList.css */
+
+.user-list-container { /* The main container for the UserList component */
+    flex-grow: 1; /* Takes remaining space in sidebar */
+    overflow-y: auto; /* Scroll if content exceeds height */
+    background-color: var(--background-content, #fff); /* White or light background */
+}
+
+.user-list-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px; /* Good padding */
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    transition: background-color 0.2s ease, border-left 0.2s ease;
+    border-left: 4px solid transparent; /* For selected indicator */
+}
+
+.user-list-item:last-child {
+    border-bottom: none;
+}
+
+.user-list-item:hover {
+    background-color: var(--background-hover, #f5f5f5); /* Subtle hover */
+}
+
+.user-list-item.selected {
+    background-color: var(--primary-light-transparent, rgba(0, 121, 107, 0.1)); /* Use a transparent version of primary light */
+    border-left-color: var(--primary-color, #00796B); /* Accent border for selected */
+}
+.user-list-item.selected .user-name {
+    color: var(--primary-dark, #004D40); /* Darker text for selected name */
+    font-weight: 600;
+}
+.user-list-item.selected .last-message-text {
+    color: var(--text-primary, #263238); /* Slightly more prominent last message */
+    font-weight: 500;
+}
+
+
+.user-list-avatar { /* Assuming you have an avatar element */
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+    background-color: var(--border-color, #ccc); /* Placeholder */
+    flex-shrink: 0;
+}
+
+.user-list-info {
+    flex-grow: 1;
+    overflow: hidden; /* For text ellipsis */
+    text-align: left;
+}
+
+.user-name {
+    font-weight: 500;
+    color: var(--text-primary, #212121);
+    font-size: 0.95em; /* 15.2px */
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.last-message-text { /* Class for the last message preview */
+    font-size: 0.85em; /* 13.6px */
+    color: var(--text-secondary, #757575);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block; /* Ensure it takes full width for ellipsis */
+    max-width: 100%; /* Ensure it doesn't overflow its container */
+}
+
+.message-timestamp-list { /* Timestamp in the user list item */
+    font-size: 0.75em; /* 12px */
+    color: var(--text-light, #9e9e9e);
+    margin-left: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start; /* Align to the top of the flex item if info part grows */
+    padding-top: 2px; /* Slight adjustment for alignment */
+}
+
+.unread-badge {
+    background-color: var(--accent-color, #FF7043);
+    color: white;
+    font-size: 0.7em; /* 11.2px */
+    padding: 3px 7px;
+    border-radius: 10px; /* Pill shape */
+    font-weight: bold;
+    margin-left: auto; /* Pushes it to the far right if there's space before timestamp */
+    align-self: center;
+}
+
+.no-chats-message {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary, #757575);
+    font-style: italic;
+}

@@ -1,0 +1,102 @@
+/* client/src/components/Group/GroupInfoModal.css */
+
+/* Apply specific z-indexes for this modal type */
+.group-info-modal-backdrop {
+    /* This class will be ON the same element as .modal-backdrop-base */
+    /* So, z-index here will override the base if needed, but better to set on base */
+    /* For clarity, let's assume .modal-backdrop-base in global has z-index: 1040 */
+    /* If GroupInfoModal needs to be on top of CreateGroupModal, it needs higher z-index */
+    z-index: 1050; 
+}
+
+.group-info-modal-content {
+    /* This class will be ON the same element as .modal-content-base */
+    max-width: 520px; /* Specific max-width for this modal */
+    z-index: 1051;
+}
+
+.group-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.group-info-header h2 { /* Overrides .modal-content-base h2 */
+    text-align: left;
+    margin-bottom: 0;
+    font-size: 1.4em; 
+}
+
+.group-creator {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 15px;
+    padding-top: 5px;
+}
+
+.group-info-modal-content h3 { /* For "Administrators" and "Participants" headings */
+    margin-top: 20px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+    font-size: 1.1em; /* Keep as is or adjust from base */
+    font-weight: 600;
+    text-align: left;
+}
+
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+.user-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    min-height: 50px;
+}
+.user-list-item:last-child { border-bottom: none; }
+
+.avatar-small {
+    width: 36px; height: 36px; border-radius: 50%;
+    margin-right: 12px; object-fit: cover; background-color: #ccc;
+    flex-shrink: 0;
+}
+
+.member-info { display: flex; align-items: center; flex-grow: 1; min-width: 0; margin-right: 10px; }
+.member-info span { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+
+/* Target the name part for ellipsis */
+.member-info span > span:first-child,
+.admin-list .user-list-item > span > span:first-child { /* More specific for admin list if structure differs slightly */
+    font-size: 0.95em; color: var(--text-primary); font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
+}
+/* Tags like (You), (Creator) */
+.member-info span > span:not(:first-child):not(.admin-badge) {
+    font-size: 0.75em; color: var(--text-secondary); margin-top: 2px;
+}
+
+.admin-badge {
+    font-size: 0.75em; background-color: var(--primary-light, #B2DFDB); color: var(--primary-dark, #004D40);
+    padding: 2px 6px; border-radius: var(--border-radius-pill, 999px); font-weight: 500;
+    margin-top: 2px; /* If stacked under name */
+    align-self: flex-start; /* Align badge to start if stacked */
+}
+
+.member-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* Action Button Specifics (assuming .btn base styles are global) */
+.action-btn { padding: 5px 10px; font-size: 0.85em; min-width: 70px; }
+.action-btn.add-members-btn { background-color: var(--primary-color); color: white; }
+.action-btn.add-members-btn:hover:not(:disabled) { background-color: var(--primary-dark); }
+.action-btn.promote-admin-btn { background-color: #28a745; color: white; }
+.action-btn.promote-admin-btn:hover:not(:disabled) { background-color: #1e7e34; }
+.action-btn.demote-admin-btn { background-color: #ffc107; color: #212529; }
+.action-btn.demote-admin-btn:hover:not(:disabled) { background-color: #e0a800; }
+.action-btn.remove-member-btn { background-color: #dc3545; color: white; }
+.action-btn.remove-member-btn:hover:not(:disabled) { background-color: #b02a37; }
