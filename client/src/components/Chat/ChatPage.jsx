@@ -2,18 +2,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import { useAuth } from '../../contexts/AuthContext';
-import UserList from './UserList'; // Component to list users/chats
-import ChatWindow from './ChatWindow'; // Component for messages
+import UserList from './UserList';
+import ChatWindow from './ChatWindow';
 import { fetchUserChatsAPI, accessOrCreateChatAPI, getMessagesAPI } from '../../services/api';
-import './ChatPage.css'; // Styles for chat page
+import './ChatPage.css';
 
-const SOCKET_SERVER_URL = 'http://localhost:5001'; // Your backend URL
+const SOCKET_SERVER_URL = 'http://localhost:5001';
 
 const ChatPage = () => {
-    const { user, logout, isAuthenticated } = useAuth(); // Added isAuthenticated
-    console.log('ChatPage: user object from useAuth():', user); // Log the user object
-    console.log('ChatPage: user._id:', user?._id);
-    console.log('ChatPage: user.id:', user?.id);
+    const { user, logout, isAuthenticated } = useAuth();
     const [chats, setChats] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -22,55 +19,72 @@ const ChatPage = () => {
     const socketRef = useRef(null);
     const [typingUsers, setTypingUsers] = useState({});
 
-    // Initialize Socket Connection
+    // Ref to hold the current selectedChat, accessible by socket event handlers
+    const selectedChatRef = useRef(null);
     useEffect(() => {
-        if (!isAuthenticated || !user) {
-            console.log('ChatPage SocketInit: Not authenticated or user is null, skipping socket connection.');
-            if (socketRef.current) { // If socket was previously connected, disconnect it
-                console.log('ChatPage SocketInit: Disconnecting existing socket.');
+        selectedChatRef.current = selectedChat; // Keep ref updated with selectedChat state
+    }, [selectedChat]);
+
+
+    const emitMessageReadIfNeeded = (msg, currentChatId, currentUserId) => {
+        if (socketRef.current && msg.sender && msg.sender._id !== currentUserId &&
+            currentUserId && // Ensure currentUserId is valid
+            (!msg.readBy || !msg.readBy.map(u => u.toString()).includes(currentUserId.toString()))) {
+            console.log(`ChatPage: Emitting 'messageRead' for msgId: ${msg._id}, chatId: ${currentChatId}, by userId: ${currentUserId}`);
+            socketRef.current.emit('messageRead', {
+                messageId: msg._id,
+                chatId: currentChatId,
+                userId: currentUserId
+            });
+        }
+    };
+
+    // Initialize and manage Socket Connection
+    useEffect(() => {
+        if (!isAuthenticated || !user?._id) {
+            if (socketRef.current) {
+                console.log('ChatPage SocketEffect: Not authenticated. Disconnecting existing socket.');
                 socketRef.current.disconnect();
                 socketRef.current = null;
             }
             return;
         }
 
-        if (!socketRef.current) { // Only initialize if not already connected
-            console.log('ChatPage SocketInit: Initializing socket connection for user:', user.id);
+        if (!socketRef.current) { // Only initialize if not already set up
+            console.log('ChatPage SocketEffect: Initializing socket for user:', user._id);
             socketRef.current = io(SOCKET_SERVER_URL);
 
             socketRef.current.on('connect', () => {
-                console.log('ChatPage Socket: Connected to socket server:', socketRef.current.id);
+                console.log('ChatPage Socket: Connected, Socket ID:', socketRef.current.id);
                 socketRef.current.emit('userOnline', user._id);
             });
 
             socketRef.current.on('receiveMessage', (incomingMessage) => {
-                console.log('ChatPage Socket: receiveMessage event. Incoming:', incomingMessage, 'Current selectedChat:', selectedChat);
-                if (selectedChat && incomingMessage.chatId === selectedChat._id) {
+                console.log('ChatPage Socket: receiveMessage event. Incoming:', incomingMessage, 'Current selectedChat (from ref):', selectedChatRef.current?._id);
+                // Use selectedChatRef.current to check against the active chat
+                if (selectedChatRef.current && incomingMessage.chatId === selectedChatRef.current._id) {
                     setMessages((prevMessages) => [...prevMessages, incomingMessage]);
-                    if (user && incomingMessage.sender?._id !== user.id) { // Check user and sender._id
-                        console.log('ChatPage Socket: Marking received message as read.');
-                        socketRef.current.emit('messageRead', {
-                            messageId: incomingMessage._id,
-                            chatId: selectedChat._id,
-                            userId: user.id
-                        });
+                    if (user && user._id) {
+                        emitMessageReadIfNeeded(incomingMessage, selectedChatRef.current._id, user._id);
                     }
                 } else {
                     console.log('ChatPage Socket: New message for unselected chat or no selected chat.');
+                    // Update chat list for unread indicators or last message preview
                     setChats(prevChats => {
-                        let chatExists = false;
+                        let chatExistsInList = false;
                         const updatedChats = prevChats.map(chat => {
                             if (chat._id === incomingMessage.chatId) {
-                                chatExists = true;
+                                chatExistsInList = true;
                                 return { ...chat, lastMessage: incomingMessage, updatedAt: incomingMessage.timestamp };
                             }
                             return chat;
                         });
-                        // If chat doesn't exist in list (e.g. new chat initiated by other user), fetch all chats again to get it
-                        // This is a simpler approach for now than trying to manually insert it with all populated fields.
-                        if(!chatExists) {
-                             console.warn("ChatPage Socket: Received message for a chat not in current list. Consider re-fetching chats.");
-                             // loadUserChats(); // You might want a function to reload chats
+                        // If the chat for the incoming message isn't in the list,
+                        // it means it's a new chat initiated by the other user.
+                        // We might need to fetch chats again or intelligently add it.
+                        if (!chatExistsInList) {
+                            console.warn(`ChatPage Socket: Received message for a new chat (${incomingMessage.chatId}) not yet in the list. Re-fetching chats.`);
+                            loadUserChats(); // Re-fetch all chats to include the new one
                         }
                         return updatedChats.sort((a,b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
                     });
@@ -78,7 +92,7 @@ const ChatPage = () => {
             });
 
             socketRef.current.on('messageStatusUpdate', ({ messageId, status, readBy }) => {
-                console.log('ChatPage Socket: messageStatusUpdate event:', { messageId, status, readBy });
+                console.log(`ChatPage Socket: 'messageStatusUpdate' received. MsgID: ${messageId}, New Status: ${status}, ReadBy:`, readBy);
                 setMessages(prevMessages =>
                     prevMessages.map(msg =>
                         msg._id === messageId ? { ...msg, status, readBy } : msg
@@ -86,52 +100,40 @@ const ChatPage = () => {
                 );
             });
 
-            socketRef.current.on('userTyping', ({ chatId: typingChatId, userName }) => { // Renamed chatId to avoid conflict
-                if (selectedChat && typingChatId === selectedChat._id) {
+            socketRef.current.on('userTyping', ({ chatId: typingChatId, userName }) => {
+                if (selectedChatRef.current && typingChatId === selectedChatRef.current._id) {
                     setTypingUsers(prev => ({ ...prev, [typingChatId]: `${userName} is typing...` }));
                 }
             });
-
-            socketRef.current.on('userStopTyping', ({ chatId: typingChatId }) => { // Renamed
-                 if (selectedChat && typingChatId === selectedChat._id) {
-                    setTypingUsers(prev => {
-                        const newState = { ...prev };
-                        delete newState[typingChatId];
-                        return newState;
-                    });
+            socketRef.current.on('userStopTyping', ({ chatId: typingChatId }) => {
+                 if (selectedChatRef.current && typingChatId === selectedChatRef.current._id) {
+                    setTypingUsers(prev => { const newState = { ...prev }; delete newState[typingChatId]; return newState; });
                 }
             });
-
-            socketRef.current.on('disconnect', () => {
-                console.log('ChatPage Socket: Disconnected from socket server');
-            });
-
-            socketRef.current.on('connect_error', (error) => {
-                console.error('ChatPage Socket: Connection error:', error);
-            });
+            socketRef.current.on('disconnect', () => { console.log('ChatPage Socket: Disconnected'); });
+            socketRef.current.on('connect_error', (error) => { console.error('ChatPage Socket: Connection error:', error); });
         }
 
-        // Clean up on component unmount
+        // Cleanup function
         return () => {
-            if (socketRef.current && user) { // Check user also
-                console.log('ChatPage SocketCleanup: Disconnecting socket for user:', user.id);
-                // socketRef.current.emit('userOffline', user.id); // Server should handle this on 'disconnect'
+            if (socketRef.current && user?._id) { // Check user._id for consistency
+                console.log('ChatPage SocketEffect Cleanup: Disconnecting socket for user:', user._id);
                 socketRef.current.disconnect();
-                socketRef.current = null;
+                socketRef.current = null; // Important to allow re-initialization if user logs out and back in
             }
         };
-    }, [user, isAuthenticated, selectedChat]); // Added selectedChat to dependencies for receiveMessage logic. Be careful with this.
+    }, [user, isAuthenticated]); // Dependencies for setting up/tearing down the socket connection itself
 
     const loadUserChats = async () => {
-        if (isAuthenticated && user) {
+        if (isAuthenticated && user && user._id) {
             console.log('ChatPage loadUserChats: Fetching user chats...');
             try {
-                const response = await fetchUserChatsAPI(); // Assuming this returns response.data as the array
+                const response = await fetchUserChatsAPI();
                 const fetchedChats = response.data;
                 if (Array.isArray(fetchedChats)) {
                     fetchedChats.sort((a,b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
                     setChats(fetchedChats);
-                    console.log('ChatPage loadUserChats: Chats fetched successfully:', fetchedChats.length, 'chats');
+                    console.log('ChatPage loadUserChats: Chats fetched:', fetchedChats.length);
                 } else {
                     console.error('ChatPage loadUserChats: Fetched chats is not an array:', fetchedChats);
                     setChats([]);
@@ -141,42 +143,33 @@ const ChatPage = () => {
                 setChats([]);
             }
         } else {
-            console.log('ChatPage loadUserChats: Not authenticated or user is null, clearing chats.');
+            console.log('ChatPage loadUserChats: Not authenticated or user info missing, clearing chats.');
             setChats([]);
         }
     };
 
-    // Fetch user's chats on load
     useEffect(() => {
         loadUserChats();
-    }, [user, isAuthenticated]); // Re-fetch when user or isAuthenticated changes
+    }, [user, isAuthenticated]);
 
-    // Fetch messages when a chat is selected
     useEffect(() => {
-        console.log('ChatPage selectedChat-useEffect: Current selectedChat:', selectedChat);
-        if (selectedChat && selectedChat._id && user) {
+        console.log('ChatPage selectedChat-useEffect: Current selectedChat ID:', selectedChat?._id);
+        if (selectedChat && selectedChat._id && user && user._id) {
             const loadMessages = async () => {
                 console.log('ChatPage loadMessages: Fetching messages for chat ID:', selectedChat._id);
                 setLoadingMessages(true);
-                setMessages([]); // Clear previous messages
+                setMessages([]);
                 try {
-                    const response = await getMessagesAPI(selectedChat._id); // Assuming this returns response.data
+                    const response = await getMessagesAPI(selectedChat._id);
                     const fetchedMessages = response.data;
                     if (Array.isArray(fetchedMessages)) {
                         setMessages(fetchedMessages);
-                        console.log('ChatPage loadMessages: Messages fetched:', fetchedMessages.length, 'messages');
-                        if (socketRef.current) {
+                        console.log('ChatPage loadMessages: Messages fetched:', fetchedMessages.length);
+                        if (socketRef.current) { // Ensure socket is connected
                             socketRef.current.emit('joinChat', selectedChat._id);
-                            console.log(`ChatPage loadMessages: Joined socket room for chat ${selectedChat._id}`);
+                            console.log(`ChatPage loadMessages: Emitted 'joinChat' for room ${selectedChat._id}`);
                             fetchedMessages.forEach(msg => {
-                                if (msg.sender && msg.sender._id !== user.id && (!msg.readBy || !msg.readBy.includes(user.id))) {
-                                     console.log(`ChatPage loadMessages: Emitting messageRead for msg ${msg._id}`);
-                                     socketRef.current.emit('messageRead', {
-                                        messageId: msg._id,
-                                        chatId: selectedChat._id,
-                                        userId: user.id
-                                    });
-                                }
+                                emitMessageReadIfNeeded(msg, selectedChat._id, user._id);
                             });
                         }
                     } else {
@@ -192,79 +185,75 @@ const ChatPage = () => {
             };
             loadMessages();
 
-            // Leave previous chat room if any
-            // This cleanup should use the value of selectedChat from when the effect ran
-            const currentChatToLeave = selectedChat._id;
+            const chatToLeave = selectedChat._id; // Capture the ID for cleanup
             return () => {
-                if (socketRef.current && currentChatToLeave) {
-                    socketRef.current.emit('leaveChat', currentChatToLeave);
-                    console.log(`ChatPage selectedChat-useEffect Cleanup: Left socket room for chat ${currentChatToLeave}`);
+                if (socketRef.current && chatToLeave) {
+                    socketRef.current.emit('leaveChat', chatToLeave);
+                    console.log(`ChatPage selectedChat-useEffect Cleanup: Emitted 'leaveChat' for room ${chatToLeave}`);
                 }
             };
         } else {
             console.log('ChatPage selectedChat-useEffect: No valid selectedChat or user. Clearing messages.');
-            setMessages([]); // Clear messages if no chat is selected
+            setMessages([]);
         }
-    }, [selectedChat, user]);
+    }, [selectedChat, user]); // user dependency is for emitMessageReadIfNeeded
 
     const handleSelectChat = async (chatOrUserId) => {
         console.log('ChatPage handleSelectChat: Called with ->', chatOrUserId);
-        setMessages([]); // Clear messages of previously selected chat
-        setTypingUsers({}); // Clear typing indicators
-        setSelectedChat(null); // Indicate loading/transition
+        if (selectedChatRef.current && selectedChatRef.current._id === (typeof chatOrUserId === 'string' ? null : chatOrUserId?._id)) {
+            console.log('ChatPage handleSelectChat: Same chat selected, doing nothing.');
+            return;
+        }
 
-        if (typeof chatOrUserId === 'string') { // It's a userId, create/access chat
-            console.log('ChatPage handleSelectChat: Argument is a userId. Accessing/Creating chat for userId:', chatOrUserId);
+        setMessages([]);
+        setTypingUsers({});
+        setSelectedChat(null); // Trigger loading state for ChatWindow
+
+        if (typeof chatOrUserId === 'string') {
+            console.log('ChatPage handleSelectChat: Argument is userId:', chatOrUserId);
             try {
-                const response = await accessOrCreateChatAPI(chatOrUserId); // API call
-                const newChat = response.data; // The actual chat object is in response.data
+                const response = await accessOrCreateChatAPI(chatOrUserId);
+                const newChat = response.data;
                 console.log('ChatPage handleSelectChat: API response from accessOrCreateChatAPI ->', newChat);
-
-                if (newChat && newChat._id) { // VALIDATION
+                if (newChat && newChat._id) {
                     setSelectedChat(newChat);
-                    console.log('ChatPage handleSelectChat: setSelectedChat with new chat ->', newChat._id);
-                    // Update chats list: if chat not present, add it. If present, could update it (e.g. make it selected).
+                    // Update chats list intelligently
                     setChats(prevChats => {
                         const existingChatIndex = prevChats.findIndex(c => c._id === newChat._id);
-                        if (existingChatIndex > -1) {
-                            // Optionally move to top or update, for now, just ensure it's there
-                            // let updatedChats = [...prevChats];
-                            // updatedChats[existingChatIndex] = newChat; // Or merge if newChat is more up-to-date
-                            // return updatedChats.sort((a,b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-                            return prevChats; // If already exists, list order might be managed by last message time
-                        } else {
+                        if (existingChatIndex > -1) { // Chat exists, move to top
+                            const updatedChats = [...prevChats];
+                            const existing = updatedChats.splice(existingChatIndex, 1)[0];
+                            return [Object.assign(existing, newChat), ...updatedChats]; // Update existing with new data and move to top
+                        } else { // New chat
                             return [newChat, ...prevChats].sort((a,b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
                         }
                     });
                 } else {
-                    console.error('ChatPage handleSelectChat: Invalid chat object received from API. Chat or chat._id is missing. Received:', newChat);
-                    // Potentially show an error to the user
+                    console.error('ChatPage handleSelectChat: Invalid chat object from API. Received:', newChat);
+                    setSelectedChat(null); // Ensure selectedChat remains null on error
                 }
             } catch (error) {
-                console.error("ChatPage handleSelectChat: Failed to access/create chat via API:", error.response?.data || error.message || error);
-                // Potentially show an error to the user
+                console.error("ChatPage handleSelectChat: Failed to access/create chat:", error.response?.data || error.message || error);
+                setSelectedChat(null);
             }
-        } else { // It's a full chat object (likely from existing chat list)
-            console.log('ChatPage handleSelectChat: Argument is a chat object. Selecting chat:', chatOrUserId?._id);
-            if (chatOrUserId && chatOrUserId._id) { // VALIDATION
+        } else {
+            console.log('ChatPage handleSelectChat: Argument is chat object:', chatOrUserId?._id);
+            if (chatOrUserId && chatOrUserId._id) {
                 setSelectedChat(chatOrUserId);
             } else {
-                console.error('ChatPage handleSelectChat: Attempted to select an invalid chat object:', chatOrUserId);
+                console.error('ChatPage handleSelectChat: Attempted to select invalid chat object:', chatOrUserId);
+                setSelectedChat(null);
             }
         }
     };
 
     const handleSendMessage = (e) => {
         e.preventDefault();
-        console.log('ChatPage handleSendMessage: Attempting to send message.');
-        console.log('ChatPage handleSendMessage: Current selectedChat value:', selectedChat);
-        console.log('ChatPage handleSendMessage: Current selectedChat._id value:', selectedChat?._id);
-        console.log('ChatPage handleSendMessage: Current user value:', user);
-        console.log('ChatPage handleSendMessage: Current newMessage value:', newMessage);
+        console.log('ChatPage handleSendMessage: Attempting message. selectedChat ID:', selectedChatRef.current?._id, 'User ID:', user?._id);
 
-        if (newMessage.trim() && selectedChat && selectedChat._id && user && user._id) {
+        if (newMessage.trim() && selectedChatRef.current && selectedChatRef.current._id && user && user._id) {
             const messageData = {
-                chatId: selectedChat._id,
+                chatId: selectedChatRef.current._id, // Use ref here
                 senderId: user._id,
                 content: { text: newMessage.trim() },
                 type: 'text',
@@ -272,79 +261,45 @@ const ChatPage = () => {
             console.log('ChatPage handleSendMessage: Emitting "sendMessage" with data:', messageData);
             if (socketRef.current) {
                 socketRef.current.emit('sendMessage', messageData);
-            } else {
-                console.error('ChatPage handleSendMessage: socketRef.current is null. Cannot emit message.');
-            }
+            } else { console.error('ChatPage handleSendMessage: socketRef.current is null.'); }
             setNewMessage('');
-            if (socketRef.current && selectedChat._id) {
-                socketRef.current.emit('stopTyping', { chatId: selectedChat._id });
+            if (socketRef.current && selectedChatRef.current._id) { // Use ref
+                socketRef.current.emit('stopTyping', { chatId: selectedChatRef.current._id });
             }
         } else {
-            console.warn('ChatPage handleSendMessage: CANNOT send message. Conditions not met. Details:',
-                {
-                    hasMessage: !!newMessage.trim(),
-                    hasSelectedChat: !!selectedChat,
-                    hasSelectedChatId: !!selectedChat?._id,
-                    hasUser: !!user,
-                    hasUserId: !!user?._id
-                }
-            );
+            console.warn('ChatPage handleSendMessage: CANNOT send. Conditions not met. Details:',
+                { hasMsg: !!newMessage.trim(), selChatId: !!selectedChatRef.current?._id, userId: !!user?._id });
         }
     };
 
     const typingTimeoutRef = useRef(null);
     const handleTyping = (e) => {
         setNewMessage(e.target.value);
-        if (!socketRef.current || !selectedChat || !user || !user.name) return; // Ensure user.name exists for typing indicator
+        if (!socketRef.current || !selectedChatRef.current?._id || !user?.name) return;
 
-        socketRef.current.emit('typing', { chatId: selectedChat._id, userName: user.name });
-
-        if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-        }
+        socketRef.current.emit('typing', { chatId: selectedChatRef.current._id, userName: user.name });
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = setTimeout(() => {
-            if (socketRef.current && selectedChat?._id) { // Check selectedChat._id too
-                socketRef.current.emit('stopTyping', { chatId: selectedChat._id });
+            if (socketRef.current && selectedChatRef.current?._id) {
+                socketRef.current.emit('stopTyping', { chatId: selectedChatRef.current._id });
             }
         }, 2000);
     };
 
-    if (!isAuthenticated) { // Early return if not authenticated
-        console.log("ChatPage: User not authenticated, rendering login prompt.");
+    if (!isAuthenticated) {
         return <div className="chat-page-container"><div className="no-chat-selected"><p>Please log in to access your chats.</p></div></div>;
     }
 
     return (
         <div className="chat-page-container">
             <div className="sidebar">
-                <div className="sidebar-header">
-                    <h3>Chats</h3>
-                    <button onClick={logout}>Logout</button>
-                </div>
-                <UserList
-                    chats={chats}
-                    onSelectChat={handleSelectChat}
-                    currentUser={user}
-                    selectedChatId={selectedChat?._id}
-                />
+                <div className="sidebar-header"><h3>Chats</h3><button onClick={logout}>Logout</button></div>
+                <UserList chats={chats} onSelectChat={handleSelectChat} currentUser={user} selectedChatId={selectedChat?._id} />
             </div>
             <div className="chat-area">
-                {selectedChat && selectedChat._id ? ( // Ensure selectedChat and its _id are valid before rendering ChatWindow
-                    <ChatWindow
-                        chat={selectedChat}
-                        messages={messages}
-                        loadingMessages={loadingMessages}
-                        currentUser={user}
-                        onSendMessage={handleSendMessage}
-                        newMessage={newMessage}
-                        onNewMessageChange={handleTyping}
-                        typingIndicator={typingUsers[selectedChat._id]}
-                    />
-                ) : (
-                    <div className="no-chat-selected">
-                        <p>Select a chat to start messaging or search for users to begin a new conversation.</p>
-                    </div>
-                )}
+                {selectedChat && selectedChat._id ? (
+                    <ChatWindow chat={selectedChat} messages={messages} loadingMessages={loadingMessages} currentUser={user} onSendMessage={handleSendMessage} newMessage={newMessage} onNewMessageChange={handleTyping} typingIndicator={typingUsers[selectedChat._id]} />
+                ) : ( <div className="no-chat-selected"><p>Select a chat to start messaging or search for users to begin a new conversation.</p></div> )}
             </div>
         </div>
     );

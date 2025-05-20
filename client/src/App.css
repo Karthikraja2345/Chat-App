@@ -1,5 +1,15 @@
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
 #root {
-  max-width: 1280px;
+ width: 100% !important;
+  height: 100% !important;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;

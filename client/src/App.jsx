@@ -42,13 +42,15 @@ function AppContent() {
 
 
 function App() {
-    return (
-        <AuthProvider>
-            <Router>
-                <AppContent />
-            </Router>
-        </AuthProvider>
-    );
+  return (
+    <div className="App"> {/* This div gets .App styles from index.css */}
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </div>
+  );
 }
 
 export default App;

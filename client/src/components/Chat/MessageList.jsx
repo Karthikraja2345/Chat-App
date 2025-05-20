@@ -1,25 +1,34 @@
 // src/components/Chat/MessageList.jsx
 import React, { useEffect, useRef } from 'react';
-import { formatDistanceToNowStrict } from 'date-fns'; // For relative timestamps
-import './ChatPage.css'; // Or a specific MessageList.css
+import { formatDistanceToNowStrict } from 'date-fns';
+import './ChatPage.css';
 
 const MessageList = ({ messages, currentUser, loading }) => {
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" }); // "auto" can be better during initial load
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
     };
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]); // Scroll whenever messages change
+    }, [messages]);
 
     const getMessageStatusText = (message) => {
-        if (message.sender._id !== currentUser._id) return null; // Only show status for sent messages
+        if (!currentUser || !currentUser._id || !message.sender || message.sender._id !== currentUser._id) {
+            return null;
+        }
 
-        if (message.status === 'read') return <span className="message-status read">Read</span>;
-        // if (message.status === 'delivered') return <span className="message-status delivered">Delivered</span>; // Optional
-        if (message.status === 'sent') return <span className="message-status sent">Sent</span>;
+        console.log(`MessageList: Evaluating MsgID ${message._id} by Sender ${currentUser._id} - Status: ${message.status}, ReadBy: [${message.readBy?.join(',')}]`);
+
+        if (message.status === 'read') {
+            console.log(`MessageList: MsgID ${message._id} - Displaying 'Read' (blue).`);
+            return <span className="message-status read">Read</span>;
+        }
+        if (message.status === 'sent' || message.status === 'delivered') {
+            console.log(`MessageList: MsgID ${message._id} - Displaying 'Sent'.`);
+            return <span className="message-status">Sent</span>;
+        }
         return null;
     };
 
@@ -31,11 +40,10 @@ const MessageList = ({ messages, currentUser, loading }) => {
         return <div className="message-list-container no-messages">No messages yet. Start the conversation!</div>;
     }
 
-
     return (
         <div className="message-list-container">
             {messages.map((msg) => {
-                const isSender = msg.sender && msg.sender._id === currentUser._id;
+                const isSender = currentUser && currentUser._id && msg.sender && msg.sender._id === currentUser._id;
                 const timestamp = new Date(msg.timestamp);
 
                 return (
@@ -45,14 +53,14 @@ const MessageList = ({ messages, currentUser, loading }) => {
                     >
                         {!isSender && msg.sender && (
                             <div style={{ fontSize: '0.8em', fontWeight: 'bold', marginBottom: '3px', color: '#555' }}>
-                                {msg.sender.name}
+                                {msg.sender.name || msg.sender.phoneNumber}
                             </div>
                         )}
-                        {msg.type === 'text' && msg.content.text}
-                        {msg.type === 'image' && msg.content.image && (
-                            <img src={msg.content.image} alt="sent" style={{ maxWidth: '200px', borderRadius: '8px', marginTop: '5px' }} />
+                        {msg.type === 'text' && msg.content?.text}
+                        {msg.type === 'image' && msg.content?.image && (
+                            <img src={msg.content.image} alt="sent content" style={{ maxWidth: '200px', borderRadius: '8px', marginTop: '5px' }} />
                         )}
-                        {msg.type === 'pdf' && msg.content.pdf && (
+                        {msg.type === 'pdf' && msg.content?.pdf && (
                             <a href={msg.content.pdf} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginTop: '5px', color: isSender ? '#fff': '#007bff', textDecoration: 'underline'}}>
                                 View PDF: {msg.content.pdf.split('/').pop().substring(0,20)}...
                             </a>
@@ -73,7 +81,6 @@ const MessageList = ({ messages, currentUser, loading }) => {
                         <span className="timestamp">
                             {formatDistanceToNowStrict(timestamp, { addSuffix: true })}
                             {isSender && getMessageStatusText(msg)}
-                        
                         </span>
                     </div>
                 );

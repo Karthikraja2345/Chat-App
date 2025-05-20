@@ -2,9 +2,8 @@
 const Message = require('../models/Message');
 const Chat = require('../models/Chat');
 const User = require('../models/User');
-// const { translateText } = require('../services/translationService'); // Placeholder
 
-let onlineUsers = new Map(); // Map userID to array of socketIDs (user might have multiple tabs/devices)
+let onlineUsers = new Map();
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -12,32 +11,24 @@ module.exports = (io) => {
 
         socket.on('userOnline', async (userId) => {
             if (userId) {
-                // Add socket.id to the list of sockets for this userId
                 if (!onlineUsers.has(userId.toString())) {
                     onlineUsers.set(userId.toString(), []);
                 }
-                onlineUsers.get(userId.toString()).push(socket.id);
-
-                console.log(`Socket Backend: User ${userId} came online with socket ${socket.id}. Total sockets for user: ${onlineUsers.get(userId.toString()).length}`);
+                if (!onlineUsers.get(userId.toString()).includes(socket.id)) {
+                    onlineUsers.get(userId.toString()).push(socket.id);
+                }
+                console.log(`Socket Backend: User ${userId} online with socket ${socket.id}. Sockets for user: ${onlineUsers.get(userId.toString())?.length}`);
                 try {
                     await User.findByIdAndUpdate(userId, { online: true, lastSeen: new Date() });
-                    // Consider emitting online status to specific contacts rather than globally
-                    // io.emit('userStatusUpdate', { userId, online: true, lastSeen: new Date() });
-                } catch (err) {
-                    console.error("Socket Backend: Error updating user online status:", err);
-                }
-            } else {
-                console.warn('Socket Backend: "userOnline" event received without userId.');
-            }
+                } catch (err) { console.error("Socket Backend: Error updating user online status:", err); }
+            } else { console.warn('Socket Backend: "userOnline" event without userId.'); }
         });
 
         socket.on('joinChat', (chatId) => {
             if (chatId) {
                 socket.join(chatId);
                 console.log(`Socket Backend: Socket ${socket.id} joined chat room: ${chatId}`);
-            } else {
-                console.warn(`Socket Backend: Socket ${socket.id} tried to join null/undefined chat room.`);
-            }
+            } else { console.warn(`Socket Backend: Socket ${socket.id} tried to join null chat room.`); }
         });
 
         socket.on('leaveChat', (chatId) => {
@@ -49,160 +40,111 @@ module.exports = (io) => {
 
         socket.on('sendMessage', async (data) => {
             console.log('Socket Backend: "sendMessage" event received. Raw Data:', JSON.stringify(data, null, 2));
-
-            // Destructure with defaults or checks
-            const chatId = data?.chatId;
-            const senderId = data?.senderId;
-            const content = data?.content;
-            const type = data?.type;
-            const paymentDetails = data?.paymentDetails; // Optional
+            const { chatId, senderId, content, type, paymentDetails } = data || {};
 
             if (!chatId || !senderId || !content || !type) {
-                console.error('Socket Backend sendMessage: Missing required data. Received:',
-                    { chatId, senderId, contentExists: !!content, type }
-                );
-                socket.emit('messageError', { message: 'Server Error: Missing required data for sending message.' });
+                console.error('Socket Backend sendMessage: FAIL - Missing required data.', { chatId, senderId, contentExists: !!content, type });
+                socket.emit('messageError', { message: 'Server Error: Missing data for sending message.' });
                 return;
             }
-            console.log(`Socket Backend sendMessage: Processing message. ChatID: ${chatId}, SenderID: ${senderId}, Type: ${type}`);
+            console.log(`Socket Backend sendMessage: PASS - Processing. ChatID: ${chatId}, SenderID: ${senderId}, Type: ${type}`);
 
             try {
-                const messageData = {
-                    chatId: chatId, // Ensure this is a valid ObjectId string
-                    sender: senderId, // Ensure this is a valid ObjectId string
-                    content: content, // content should be { text, image, pdf }
-                    type: type,
-                    status: 'sent'
-                };
+                const messageData = { chatId, sender: senderId, content, type, status: 'sent' };
+                if (type === 'payment_split' && paymentDetails) messageData.paymentDetails = paymentDetails;
 
-                if (type === 'payment_split' && paymentDetails) {
-                    messageData.paymentDetails = paymentDetails;
-                }
-
+                console.log('Socket Backend sendMessage: Creating Message with data:', JSON.stringify(messageData, null, 2));
                 let newMessage = new Message(messageData);
                 await newMessage.save();
-                console.log('Socket Backend sendMessage: Message saved to DB with ID:', newMessage._id);
+                console.log('Socket Backend sendMessage: SUCCESS - Message saved. ID:', newMessage._id);
 
-                // Populate sender details for the message being emitted
                 newMessage = await newMessage.populate('sender', 'name profilePicture phoneNumber');
-                // newMessage = await Message.findById(newMessage._id).populate('sender', 'name profilePicture phoneNumber'); // Alternative way to populate
+                console.log('Socket Backend sendMessage: Message populated with sender.');
 
-                // Update lastMessage in the Chat document
-                const updatedChat = await Chat.findByIdAndUpdate(
-                    chatId,
-                    { lastMessage: newMessage._id, updatedAt: Date.now() },
-                    { new: true } // Return the updated document
-                ).populate('participants', '_id online'); // Populate participants to check their online status if needed later
+                const updatedChat = await Chat.findByIdAndUpdate(chatId,
+                    { lastMessage: newMessage._id, updatedAt: Date.now() }, { new: true }
+                );
+                if (!updatedChat) console.error(`Socket Backend sendMessage: FAIL - Could not update chat ${chatId}.`);
+                else console.log(`Socket Backend sendMessage: SUCCESS - Chat ${chatId} lastMessage updated.`);
 
-                if (!updatedChat) {
-                    console.error(`Socket Backend sendMessage: Could not find or update chat with ID ${chatId} after saving message.`);
-                    // Decide how to handle this - message is saved, but chat not updated
-                } else {
-                     console.log(`Socket Backend sendMessage: Chat ${chatId} lastMessage updated to ${newMessage._id}.`);
-                }
-
-                console.log('Socket Backend sendMessage: Emitting "receiveMessage" to room:', chatId, 'Payload:', JSON.stringify(newMessage, null, 2));
-                io.to(chatId).emit('receiveMessage', newMessage); // Emit to all sockets in the chat room
-
+                console.log('Socket Backend sendMessage: Emitting "receiveMessage" to room:', chatId);
+                io.to(chatId).emit('receiveMessage', newMessage.toObject()); // Send plain object
             } catch (error) {
-                // This catch block will catch errors like "Cast to ObjectId failed" if chatId or senderId is invalid
-                console.error('Socket Backend sendMessage: Error saving message or updating chat:', error);
-                console.error('Socket Backend sendMessage: Error name:', error.name, 'Error message:', error.message);
-                if (error.name === 'CastError') {
-                    console.error('Socket Backend sendMessage: CastError details - Path:', error.path, 'Value:', error.value);
-                }
-                socket.emit('messageError', { message: 'Server error: Could not send message. ' + error.message });
+                console.error('Socket Backend sendMessage: FAIL - Error during processing:', error.name, error.message, {data});
+                if (error.name === 'CastError') console.error('CastError details - Path:', error.path, 'Value:', error.value);
+                socket.emit('messageError', { message: 'Server error: Could not send. ' + error.message });
             }
         });
 
         socket.on('messageRead', async (data) => {
-            const { messageId, chatId, userId } = data;
-            console.log(`Socket Backend: "messageRead" event. MsgID: ${messageId}, ChatID: ${chatId}, UserID: ${userId}`);
+            const { messageId, chatId, userId } = data || {}; // userId is the reader
+            console.log(`Socket Backend: "messageRead" event. MsgID: ${messageId}, ChatID: ${chatId}, Reader UserID: ${userId}`);
+
             if (!messageId || !chatId || !userId) {
-                console.warn('Socket Backend messageRead: Missing data for messageRead event.');
-                return;
+                console.warn('Socket Backend messageRead: Missing data.', {data}); return;
             }
             try {
                 const message = await Message.findById(messageId);
-                if (message) {
-                    let statusChanged = false;
-                    if (!message.readBy.map(id => id.toString()).includes(userId.toString())) {
-                        message.readBy.push(userId);
-                        statusChanged = true;
-                    }
+                if (!message) { console.warn(`Socket Backend messageRead: Message ${messageId} not found.`); return; }
 
-                    // Simplified logic for 1-on-1 read status
-                    // For a message to be "read" overall, the other participant must have read it
-                    if (message.sender.toString() !== userId.toString()) { // If reader is not sender
-                        const chat = await Chat.findById(chatId);
-                        if (chat && !chat.isGroupChat) {
-                             // In 1-on-1, if a recipient reads it, mark as 'read'
-                            if (message.status !== 'read') {
-                                message.status = 'read';
-                                statusChanged = true;
-                            }
-                        }
-                        // Group chat "read" status is more complex (e.g., all other participants read)
-                        // For now, just updating readBy is fine for groups.
-                    }
+                console.log(`Socket Backend messageRead: Found msg ${messageId}. ReadBy: [${message.readBy.join(', ')}], Status: ${message.status}`);
+                let changed = false;
 
-                    if (statusChanged) {
-                        await message.save();
-                        console.log(`Socket Backend messageRead: Message ${messageId} updated. Status: ${message.status}, ReadBy count: ${message.readBy.length}`);
-                    }
-
-                    io.to(chatId).emit('messageStatusUpdate', {
-                        messageId: message._id,
-                        status: message.status,
-                        readBy: message.readBy
-                    });
-                } else {
-                    console.warn(`Socket Backend messageRead: Message ${messageId} not found.`);
+                if (!message.readBy.map(id => id.toString()).includes(userId.toString())) {
+                    message.readBy.push(userId);
+                    console.log(`Socket Backend messageRead: Added ${userId} to readBy for ${messageId}.`);
+                    changed = true;
                 }
+
+                if (message.sender.toString() !== userId.toString()) {
+                    const chat = await Chat.findById(chatId);
+                    if (chat && !chat.isGroupChat && message.status !== 'read') {
+                        message.status = 'read';
+                        console.log(`Socket Backend messageRead: Msg ${messageId} status set to 'read' (1-on-1).`);
+                        changed = true;
+                    }
+                }
+
+                if (changed) {
+                    await message.save();
+                    console.log(`Socket Backend messageRead: Msg ${messageId} saved. New status: ${message.status}, ReadBy: ${message.readBy.length}`);
+                } else { console.log(`Socket Backend messageRead: No changes to save for msg ${messageId}.`); }
+
+                io.to(chatId).emit('messageStatusUpdate', {
+                    messageId: message._id.toString(),
+                    status: message.status,
+                    readBy: message.readBy.map(id => id.toString())
+                });
             } catch (error) {
-                console.error('Socket Backend messageRead: Error updating message status:', error);
+                console.error('Socket Backend messageRead: Error updating status:', error, {data});
             }
         });
 
         socket.on('typing', ({ chatId, userName }) => {
-            if (chatId && userName) {
-                // Emit to others in the room, not back to the sender
-                socket.to(chatId).emit('userTyping', { chatId, userName });
-                console.log(`Socket Backend: User ${userName} is typing in chat ${chatId}. Socket: ${socket.id}`);
-            }
+            if (chatId && userName) socket.to(chatId).emit('userTyping', { chatId, userName });
         });
-
         socket.on('stopTyping', ({ chatId }) => {
-            if (chatId) {
-                socket.to(chatId).emit('userStopTyping', { chatId });
-                console.log(`Socket Backend: User stopped typing in chat ${chatId}. Socket: ${socket.id}`);
-            }
+            if (chatId) socket.to(chatId).emit('userStopTyping', { chatId });
         });
-
 
         socket.on('disconnect', async () => {
             console.log('Socket Backend: User disconnected. Socket ID:', socket.id);
             let disconnectedUserId;
-            for (let [userId, socketIds] of onlineUsers.entries()) {
+            for (let [userIdStr, socketIds] of onlineUsers.entries()) {
                 const index = socketIds.indexOf(socket.id);
                 if (index !== -1) {
-                    socketIds.splice(index, 1); // Remove this socket.id
-                    if (socketIds.length === 0) { // If no more sockets for this user
-                        onlineUsers.delete(userId);
-                        disconnectedUserId = userId;
+                    socketIds.splice(index, 1);
+                    if (socketIds.length === 0) {
+                        onlineUsers.delete(userIdStr);
+                        disconnectedUserId = userIdStr;
                     }
                     break;
                 }
             }
-
             if (disconnectedUserId) {
-                 console.log(`Socket Backend: User ${disconnectedUserId} all sockets disconnected, marking as offline.`);
-                try {
-                    await User.findByIdAndUpdate(disconnectedUserId, { online: false, lastSeen: new Date() });
-                    // Consider emitting to contacts: io.emit('userStatusUpdate', { userId: disconnectedUserId, online: false, lastSeen: new Date() });
-                } catch(err) {
-                    console.error("Socket Backend: Error updating user offline status:", err);
-                }
+                 console.log(`Socket Backend: User ${disconnectedUserId} fully offline.`);
+                try { await User.findByIdAndUpdate(disconnectedUserId, { online: false, lastSeen: new Date() }); }
+                catch(err) { console.error("Socket Backend: Error updating user offline status:", err); }
             }
         });
     });
