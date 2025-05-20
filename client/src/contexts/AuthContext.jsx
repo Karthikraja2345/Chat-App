@@ -1,13 +1,15 @@
 // src/contexts/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getMyProfileAPI } from '../services/api'; // This path assumes api.js is in src/services/
-import { jwtDecode } from 'jwt-decode'; // Use named import, often camelCase
+import { getMyProfileAPI } from '../services/api';
+import { jwtDecode } from 'jwt-decode';
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    // Initialize token from localStorage synchronously
+    const [token, setToken] = useState(() => localStorage.getItem('token'));
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -15,60 +17,69 @@ export const AuthProvider = ({ children }) => {
                 try {
                     const decodedToken = jwtDecode(token);
                     if (decodedToken.exp * 1000 < Date.now()) {
-                        console.log("Token expired, logging out.");
-                        logout();
-                        setLoading(false); // Ensure loading is set to false
-                        return;
+                        console.log("AuthContext: Token expired, logging out effectively.");
+                        localStorage.removeItem('token');
+                        setToken(null); // This will cause re-render and user to be null if not already
+                        setUser(null);
+                        // No need to call logout() function here as it might cause infinite loop if logout also sets token
+                    } else {
+                        // console.log("AuthContext: Token valid, fetching user profile...");
+                        const response = await getMyProfileAPI(); // Assumes API interceptor adds token
+                        // console.log("AuthContext: User profile fetched:", response.data);
+                        setUser(response.data);
                     }
-                    console.log("Token valid, fetching user profile...");
-                    const response = await getMyProfileAPI();
-                    console.log("User profile fetched:", response.data);
-                    setUser(response.data);
                 } catch (error) {
-                    console.error('Failed to fetch user or token invalid/expired', error);
-                    logout(); // Clear invalid token
+                    console.error('AuthContext: Failed to fetch user or token invalid/expired', error);
+                    localStorage.removeItem('token');
+                    setToken(null);
+                    setUser(null);
                 }
+            } else {
+                setUser(null); // Ensure user is null if no token
             }
             setLoading(false);
         };
+
+        setLoading(true); // Set loading to true before starting the fetch/check
         fetchUser();
-    }, [token]); // Only re-run if token changes
+
+    }, [token]); // Re-run when token changes
 
     const login = (userData, authToken) => {
-        console.log("Logging in user:", userData);
+        // console.log("AuthContext: Logging in user:", userData);
         localStorage.setItem('token', authToken);
-        setToken(authToken); // This will trigger the useEffect above
-        setUser(userData);
-        setLoading(false); // Ensure loading is false after login
+        setUser(userData); // Set user immediately for responsiveness
+        setToken(authToken); // Then set token, which will trigger the useEffect
+        setLoading(false); // Should be false after login completes
     };
 
-    const logout = () => {
-        console.log("Logging out user.");
+    const logout = () => { // Make logout a stable function with useCallback if passed as prop
+        // console.log("AuthContext: Logging out user.");
         localStorage.removeItem('token');
-        setToken(null); // This will trigger the useEffect above
         setUser(null);
-        setLoading(false); // Ensure loading is false after logout
-        // Optionally redirect to login page, but App.jsx handles this
+        setToken(null); // Triggers useEffect to ensure clean state if needed
+        setLoading(false);
     };
 
     const updateUserContext = (updatedUserData) => {
-        console.log("Updating user context:", updatedUserData);
+        // console.log("AuthContext: Updating user context:", updatedUserData);
         setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
-    }
+    };
+    
+    // console.log("AuthContext Provider Render: user?._id:", user?._id, "loading:", loading, "isAuthenticated:", !!user && !!token);
 
- console.log(
-        "AuthContext Provider Render: loading =", loading,
-        "user object:", user, // Log the whole user object
-        "user._id:", user?._id,
-        "user.id:", user?.id, // Specifically check user.id
-        "isAuthenticated =", !!user && !!token
-    );
     return (
         <AuthContext.Provider value={{ user, setUser: updateUserContext, login, logout, token, loading, isAuthenticated: !!user && !!token }}>
-            {!loading && children}
-            {loading && <div>Loading Authentication...</div>} {/* Show a clear loading message */}
+            {!loading ? children : <div>Loading Application...</div>}
         </AuthContext.Provider>
     );
 };
 
-export const useAuth = () => useContext(AuthContext);
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (context === undefined || context === null) { // Check against null if createContext(null)
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};

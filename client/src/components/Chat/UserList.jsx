@@ -1,7 +1,7 @@
 // src/components/Chat/UserList.jsx
 import React, { useState, useEffect } from 'react';
 import { searchUsersAPI } from '../../services/api'; // Adjust if api.js is elsewhere
-import './ChatPage.css'; // Or a specific UserList.css
+import './UserList.css'; // Or a specific UserList.css
 
 const UserList = ({ chats, onSelectChat, currentUser, selectedChatId }) => {
     const [searchTerm, setSearchTerm] = useState('');

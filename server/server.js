@@ -1,6 +1,6 @@
 // server/server.js
 const express = require('express');
-const http = require('http');
+const http = require('http'); // Use this for creating the server
 const { Server } = require('socket.io');
 const dotenv = require('dotenv');
 dotenv.config(); // Load .env variables at the top
@@ -8,12 +8,16 @@ dotenv.config(); // Load .env variables at the top
 const cors = require('cors');
 const connectDB = require('./config/db');
 const socketHandler = require('./socket/socketHandler');
+
 const multer = require('multer'); // Still needed for the direct /api/files/upload route
 const path = require('path');
 const fs = require('fs');
 
 // Import file routes AFTER dotenv.config()
 const fileRoutes = require('./routes/fileRoutes');
+
+const chatController = require('./controllers/chatController'); // If you were planning to use setSocketIO
+
 
 connectDB();
 const app = express();

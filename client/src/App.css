@@ -50,3 +50,255 @@ html, body {
 .read-the-docs {
   color: #888;
 }
+
+/* Temporary Test CSS for ConfirmationModal visibility */
+.confirmation-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* Darker backdrop to see it */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Very high z-index for testing */
+}
+
+.confirmation-modal-content {
+    background: white;
+    padding: 30px;
+    border: 2px solid red; /* Bright border to see it */
+    border-radius: 8px;
+    min-width: 250px;
+    text-align: center;
+}
+
+.confirmation-modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1040; /* Base z-index for backdrops */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* General Modal Content Box */
+.modal-content {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px; /* Default max-width */
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative; /* For positioning close button */
+    z-index: 1041; /* Higher than its own backdrop */
+}
+
+/* Modal Close Button (can be shared) */
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    font-weight: bold;
+    line-height: 1;
+    color: #555;
+    cursor: pointer;
+    padding: 0;
+}
+.modal-close-btn:hover {
+    color: #000;
+}
+
+/* Shared Form Group Styling */
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+.form-group input[type="text"],
+.form-group textarea,
+.form-control { /* Generic class for form inputs */
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Important */
+    font-size: 1em;
+}
+.form-group textarea.form-control {
+    min-height: 70px;
+    resize: vertical;
+}
+.form-group small {
+    font-size: 0.8em;
+    color: #666;
+    display: block;
+    margin-top: 3px;
+}
+
+
+/* Shared Button Styling */
+.btn {
+    padding: 8px 15px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+.btn-primary:hover:not(:disabled) {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+.btn-primary:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+.btn-secondary:hover:not(:disabled) {
+    background-color: #545b62;
+    border-color: #4e555b;
+}
+.btn-secondary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+.btn-danger { /* For confirm buttons on destructive actions */
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+.btn-danger:hover:not(:disabled) {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Specific Modal Actions Styling (e.g., for ConfirmationModal) */
+.confirmation-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px; /* Space between buttons */
+    margin-top: 20px;
+}
+
+/* Error and Success Messages (can be shared) */
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 0.9em;
+}
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.modal-backdrop-base {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Consistent backdrop color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+    /* Base z-index for the lowest modal, specific modals will override */
+    z-index: 1040; 
+}
+
+.modal-content-base {
+    background: var(--background-content, white);
+    padding: 25px 30px;
+    border-radius: var(--border-radius-lg, 12px);
+    box-shadow: var(--shadow-lg, 0 10px 20px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.08));
+    width: 90%;
+    max-width: 500px; /* Default max-width, can be overridden */
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative; /* For positioning close button if needed */
+    transform: scale(1);
+    transition: transform 0.25s ease;
+    text-align: left;
+    /* Base z-index, specific modals will override if higher */
+    z-index: 1041; 
+}
+
+.modal-content-base h2, 
+.modal-content-base h3, 
+.modal-content-base h4 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-weight: 600;
+    text-align: center;
+}
+.modal-content-base h3 { font-size: 1.2em; } /* Adjusted for better hierarchy */
+.modal-content-base h4 { font-size: 1.05em; margin-bottom: 10px; }
+
+.modal-content-base .modal-close-btn { /* Shared close button if needed */
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: var(--text-light, #78909C);
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+    transition: color 0.2s ease;
+    z-index: 10; /* Ensure close button is above content */
+}
+.modal-content-base .modal-close-btn:hover {
+    color: var(--text-primary, #263238);
+}

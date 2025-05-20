@@ -567,18 +567,50 @@
     color: var(--text-secondary);
 }
 
+
 /* Scrollbar styling (optional, for WebKit browsers) */
-::-webkit-scrollbar {
+/*::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: transparent; /* Or var(--background-main) */
+    background: transparent; 
 }
 ::-webkit-scrollbar-thumb {
-    background: #bdbdbd; /* Lighter scrollbar thumb */
+    background: #bdbdbd; 
     border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
     background: #9e9e9e;
+}*/
+.sidebar-header > div { /* Wrapper for buttons */
+    display: flex;
+    gap: 10px;
 }
+.sidebar-header .create-group-btn {
+      background-color: var(--primary-color);
+      color: var(--text-on-primary);
+      border: none;
+      padding: 6px 12px; /* Match logout button padding */
+      border-radius: var(--border-radius-sm); /* Match logout button radius */
+      font-size: 0.875em;
+      font-weight: 500;
+  }
+  .sidebar-header .create-group-btn:hover {
+      background-color: var(--primary-dark);
+  }
+
+  .sidebar-header .logout-btn { /* Ensure it uses existing style or this */
+      background: transparent;
+      color: var(--accent-color);
+      border: 1px solid var(--accent-color);
+      padding: 6px 12px;
+      border-radius: var(--border-radius-sm);
+      font-size: 0.875em;
+      font-weight: 500;
+  }
+  .sidebar-header .logout-btn:hover {
+      background: var(--accent-color);
+      color: var(--text-on-accent);
+  }
+

@@ -1,13 +1,18 @@
 // src/components/Chat/MessageInput.jsx
+
 import React, { useRef, useEffect, useState } from 'react';
 import { FiPaperclip, FiSmile } from 'react-icons/fi';
 import sendIcon from '../../assets/send.svg'; // Make sure this path is correct or use public path
 import './ChatPage.css';
 
+import './MessageInput.css'; // Ensure this path is correct or remove if not used
+
+
 const MessageInput = ({
     newMessage,
     onNewMessageChange,
     onSendMessage,
+
     onFileSelectedForPreview,
     isFileBeingProcessed, // From ChatPage: isConfirmationDialogVisible || isActuallyUploadingOrConverting
 }) => {
@@ -77,11 +82,18 @@ const MessageInput = ({
             fileInputRef.current.value = "";
         }
     };
+  
+   const handleFormSubmit = (e) => {
+        e.preventDefault();
+        if (newMessage.trim()) {
+            onSendMessage(e);
+        }
+    };
 
     // console.log("MessageInput rendering. isFileBeingProcessed:", isFileBeingProcessed);
 
     return (
-        <form className="message-input-container" onSubmit={onSendMessage}>
+       <form className="message-input-container" onSubmit={handleFormSubmit}>
             <div className="input-actions">
                 <button
                     type="button"
@@ -123,10 +135,13 @@ const MessageInput = ({
             />
             <button
                 type="submit"
-                className="send-button"
-                disabled={isFileBeingProcessed || !newMessage.trim()}
+                className="message-input-send-btn"
+                disabled={!newMessage.trim()}
             >
-                <img src={sendIcon} alt="Send" />
+                {/* For Vite, if send.svg is in public/assets: <img src="/assets/send.svg" ... /> */}
+                {/* Or if imported: import sendIcon from '/src/assets/send.svg'; <img src={sendIcon} ... /> */}
+                <img src="/src/assets/send.svg" alt="Send" style={{ width: '20px', height: '20px', display: 'block' }} />
+
             </button>
         </form>
     );
