@@ -1,108 +1,119 @@
-/* src/components/Chat/ChatPage.css */
 
+
+/* --- General Page Setup --- */
 .chat-page-container {
     display: flex;
-    height: 100%;
+    height: 100vh; /* Full viewport height */
     width: 100%;
     overflow: hidden;
     background-color: var(--background-main);
+    font-family: var(--font-family-main);
+    color: var(--text-primary);
+}
+
+/* --- Scrollbar Styling (WebKit) --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #bdbdbd;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #9e9e9e;
 }
 
 /* --- Sidebar --- */
 .sidebar {
-    width: 320px; /* Consistent width */
-    min-width: 300px;
+    width: var(--sidebar-width);
     background-color: var(--background-content);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     height: 100%;
+    flex-shrink: 0;
 }
 
 .sidebar-header {
-    padding: 15px 20px;
+    padding: 0 16px; /* Horizontal padding */
+    min-height: var(--header-height);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--background-main); /* Match app background */
+    background-color: var(--background-main);
     flex-shrink: 0;
-    min-height: 60px;
 }
 
 .sidebar-header h3 {
     margin: 0;
-    font-size: 1.25em; /* 20px */
+    font-size: 1.15em;
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 600; /* Slightly bolder than WhatsApp's 500 for clarity */
 }
 
-.sidebar-header button { /* Logout button */
-    background: transparent;
+.sidebar-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-action-btn { /* Common style for sidebar header buttons */
+    padding: 7px 12px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.sidebar-action-btn.new-group-btn, /* Kept old class name if used in JS for consistency */
+.sidebar-header-actions button:first-child { /* "New Group" button style */
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+}
+.sidebar-action-btn.new-group-btn:hover,
+.sidebar-header-actions button:first-child:hover {
+    background-color: var(--primary-dark);
+}
+
+.sidebar-action-btn.logout-btn, /* Kept old class name if used in JS */
+.sidebar-header-actions button:last-child { /* "Logout" button style */
+    background-color: transparent;
     color: var(--accent-color);
     border: 1px solid var(--accent-color);
-    padding: 6px 12px;
-    border-radius: var(--border-radius-sm);
-    font-size: 0.875em; /* 14px */
-    font-weight: 500;
 }
-.sidebar-header button:hover {
-    background: var(--accent-color);
+.sidebar-action-btn.logout-btn:hover,
+.sidebar-header-actions button:last-child:hover {
+    background-color: var(--accent-color);
     color: var(--text-on-accent);
 }
 
-.search-bar-container {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--background-main);
-    flex-shrink: 0;
-}
 
-.search-input {
-    width: 100%;
-    padding: 10px 15px;
-    border-radius: var(--border-radius-pill);
-    border: 1px solid var(--border-color);
-    font-size: 0.9em; /* 14.4px */
-    background-color: var(--background-content);
-    color: var(--text-primary);
-    transition: var(--transition-fast);
-}
-.search-input::placeholder {
-    color: var(--text-light);
-}
-.search-input:focus {
-    outline: none;
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(0, 121, 107, 0.2);
-}
-
-.user-list-container {
+.user-list-container { /* Contains UserSearch and UserList components */
     flex-grow: 1;
     overflow-y: auto;
+    background-color: var(--background-content);
 }
-.search-results-section h4, .chat-list h4 { /* Optional heading for chat list */
-    font-size: 0.75em; /* 12px */
-    color: var(--text-light);
-    padding: 15px 20px 8px;
-    margin: 0;
-    text-transform: uppercase;
-    font-weight: 600;
-    background-color: var(--background-main);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky; /* Keep heading visible while scrolling list items */
-    top: 0;
-    z-index: 1;
+
+/* Styling for UserList component within .user-list-container */
+.chat-list { /* Assuming UserList renders a div with this class or similar */
+    padding-top: 8px; /* Small padding at the top of the list */
 }
 
 .user-list-item {
     display: flex;
     align-items: center;
-    padding: 10px 20px; /* Slightly less padding */
+    padding: 10px 10px; /* Vertical, Horizontal */
     cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-    transition: var(--transition-fast);
-    min-height: 68px; /* Consistent item height */
+    border-bottom: 1px solid var(--border-color-light);
+    transition: background-color var(--transition-fast);
+    min-height: 72px;
 }
 .user-list-item:last-child {
     border-bottom: none;
@@ -113,57 +124,106 @@
 .user-list-item.selected {
     background-color: var(--background-selected);
 }
-.user-list-item.selected .user-name {
-    color: var(--background-selected-text); /* Use a specific color for selected text */
-    font-weight: 600;
+.user-list-item.selected .user-name,
+.user-list-item.selected .last-message,
+.user-list-item.selected .timestamp {
+    color: var(--background-selected-text) !important;
 }
 .user-list-item.selected .last-message {
-    color: var(--primary-dark);
+    opacity: 0.85;
 }
 
 .avatar {
-    width: 44px;
-    height: 44px;
+    width: 49px;
+    height: 49px;
     border-radius: 50%;
     margin-right: 15px;
     object-fit: cover;
-    background-color: #B0BEC5; /* Placeholder color */
-    border: 2px solid transparent; /* For potential active/online indicator later */
-}
-.user-list-item.selected .avatar {
-    border-color: var(--primary-color);
+    background-color: #B0BEC5; /* Placeholder */
+    flex-shrink: 0;
 }
 
-.user-info {
+.user-info-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    overflow: hidden;
+}
+
+.user-details {
     flex-grow: 1;
     overflow: hidden;
-    text-align: left;
+    padding-right: 10px;
 }
 
 .user-name {
     font-weight: 500;
     color: var(--text-primary);
     display: block;
-    margin-bottom: 1px;
-    font-size: 0.95em; /* 15.2px */
+    font-size: 1.05em; /* ~16.8px */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 3px;
 }
 
 .last-message {
-    font-size: 0.85em; /* 13.6px */
+    font-size: 0.9em; /* ~14.4px */
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block;
+    display: flex; /* To align icon with text */
+    align-items: center;
 }
-.no-results, .no-chats {
-    padding: 30px 20px;
+.last-message-icon {
+    margin-right: 5px;
+    font-size: 0.9em; /* Slightly smaller than text */
+    color: var(--text-light);
+    flex-shrink: 0;
+}
+.user-list-item.selected .last-message-icon {
+    color: var(--background-selected-text) !important;
+    opacity: 0.85;
+}
+
+
+.meta-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 0.75em; /* ~12px */
+    color: var(--text-light);
+    flex-shrink: 0;
+    padding-top: 2px; /* Align with top of user-name slightly */
+}
+.meta-info .timestamp {
+    margin-bottom: 5px;
+    white-space: nowrap;
+}
+.unread-badge {
+    background-color: var(--accent-color);
+    color: var(--text-on-accent);
+    border-radius: 10px; /* Pill shape for numbers > 9 */
+    padding: 2px 6px;
+    min-width: 20px;
+    height: 20px;
+    font-size: 0.85em; /* Smaller font inside badge */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1; /* Adjust for better vertical centering */
+}
+
+
+.no-chats, .no-results { /* UserList empty states */
+    padding: 40px 20px;
     text-align: center;
     color: var(--text-secondary);
-    font-size: 0.9em;
+    font-size: 0.95em;
+    line-height: 1.6;
 }
 
 /* --- Chat Area --- */
@@ -172,8 +232,11 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: var(--background-chat-area);
+    background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Default WhatsApp BG */
+    background-color: var(--background-chat-area); /* Fallback if image fails */
+    background-repeat: repeat;
     overflow: hidden;
+    position: relative;
 }
 
 .no-chat-selected {
@@ -182,17 +245,24 @@
     justify-content: center;
     height: 100%;
     text-align: center;
-    color: var(--text-secondary);
+    color: #4a4a4a;
     font-size: 1.1em;
     flex-direction: column;
-    background-color: var(--background-main);
-    padding: 20px;
+    padding: 30px;
+    background-color: var(--background-main); /* Clear background for this state */
+}
+.no-chat-selected img { /* If you add a logo/placeholder image */
+    width: clamp(150px, 50%, 250px);
+    margin-bottom: 25px;
+    opacity: 0.7;
 }
 .no-chat-selected p {
-    max-width: 380px;
+    max-width: 400px;
     line-height: 1.7;
+    font-weight: 300;
 }
 
+/* --- Chat Window (inside Chat Area) --- */
 .chat-window-container {
     display: flex;
     flex-direction: column;
@@ -203,229 +273,359 @@
 .chat-header {
     display: flex;
     align-items: center;
-    padding: 0 20px; /* Vertical padding from min-height */
-    background-color: var(--background-content);
+    padding: 0 16px;
+    background-color: var(--background-main);
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
-    min-height: 60px; /* Standard header height */
-    box-shadow: var(--shadow-sm);
-    position: relative; /* For z-index if needed over message list */
-    z-index: 2;
+    min-height: var(--header-height);
+    position: relative;
+    z-index: 2; /* Above message list */
 }
 
-.avatar.small-avatar {
-    width: 38px; /* Slightly smaller for header */
-    height: 38px;
+.avatar.small-avatar { /* Avatar in chat header */
+    width: 40px;
+    height: 40px;
     margin-right: 12px;
 }
 
 .chat-info {
     flex-grow: 1;
     text-align: left;
-    display: flex; /* To align name and status */
+    display: flex;
     flex-direction: column;
-    justify-content: center; /* Vertically center if header is taller */
+    justify-content: center;
+    overflow: hidden; /* For ellipsis */
 }
 
-.chat-header h3 {
+.chat-header h3 { /* Chat name */
     margin: 0;
-    font-size: 1.1em; /* 17.6px */
-    font-weight: 600;
+    font-size: 1.05em; /* ~16.8px */
+    font-weight: 500;
     color: var(--text-primary);
     line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.chat-header small { /* Online status / last seen */
-    font-size: 0.75em; /* 12px */
+.chat-header small, .chat-header .typing-indicator { /* Participant list or typing */
+    font-size: 0.8em; /* ~12.8px */
     color: var(--text-light);
     line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.typing-indicator {
+.chat-header .typing-indicator {
+    color: var(--accent-color);
     font-style: italic;
-    color: var(--primary-color);
+    font-weight: 500;
 }
+.chat-header-actions { /* For call, search, menu icons if added */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.chat-header-actions button {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5em; /* Icon size */
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.chat-header-actions button:hover {
+    background-color: rgba(0,0,0,0.05);
+    color: var(--text-primary);
+}
+
 
 /* --- Message List --- */
 .message-list-container {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 15px 20px;
+    padding: 15px 5%; /* Responsive padding */
     display: flex;
     flex-direction: column;
+    gap: 4px; /* Small gap between messages */
 }
 .message-list-container.no-messages {
     justify-content: center;
     align-items: center;
     color: var(--text-secondary);
-    font-size: 0.95em;
+    font-size: 1em;
+}
+.message-list-container.loading-messages { /* When loading state is true */
+    justify-content: center;
+    align-items: center;
+}
+
+.message-item { /* Wrapper for each message bubble and potential sender name */
+    display: flex;
+    flex-direction: column;
+    max-width: 70%; /* Max width of the entire item including sender name */
+}
+.message-item.sent { align-self: flex-end; }
+.message-item.received { align-self: flex-start; }
+
+.sender-name { /* For group chats, above received bubble */
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--primary-color); /* Or a distinct color per user via JS */
+    margin-bottom: 3px;
+    margin-left: 10px; /* Indent slightly */
+    align-self: flex-start; /* Ensure it's above the bubble */
 }
 
 .message-bubble {
-    max-width: 70%; /* Keep this reasonable */
-    padding: 10px 15px;
-    border-radius: var(--border-radius-lg); /* Consistent rounding */
-    margin-bottom: 8px; /* Space between bubbles */
-    word-wrap: break-word;
-    line-height: 1.5;
-    font-size: 0.95em; /* 15.2px */
+    padding: 7px 10px;
+    border-radius: var(--border-radius-md);
+    word-wrap: break-word; /* Use break-word for better wrapping */
+    line-height: 1.45;
+    font-size: 0.93em; /* ~14.8px */
     position: relative;
     box-shadow: var(--bubble-shadow);
-    text-align: left; /* Ensure text inside bubble is left-aligned */
+    text-align: left;
+    min-width: 80px; /* Minimum width to show timestamp nicely */
 }
-
 .message-bubble.sent {
     background: var(--bubble-sent-bg);
     color: var(--bubble-sent-text);
-    align-self: flex-end;
     border-bottom-right-radius: var(--border-radius-sm); /* Tail effect */
 }
-
 .message-bubble.received {
-    background-color: var(--bubble-received-bg);
+    background-color: rgba(4, 139, 31, 0.708);
     color: var(--bubble-received-text);
-    align-self: flex-start;
-    border: 1px solid var(--border-color); /* Subtle border for received */
-    border-bottom-left-radius: var(--border-radius-sm);
+    border-bottom-left-radius: var(--border-radius-sm); /* Tail effect */
 }
-.message-bubble.received .sender-name { /* If showing sender name for group chats */
-    font-size: 0.8em;
-    font-weight: 600;
-    color: var(--primary-color); /* Or another distinct color */
-    margin-bottom: 4px;
-    display: block;
+
+.message-content {
+    display: flex;
+    flex-direction: column; /* Stack text and file/image */
+}
+.message-text {
+    white-space: pre-wrap; /* Preserve whitespace and newlines */
+    margin-bottom: 2px; /* Space before meta if no file */
+}
+.message-caption { /* For caption under images/files */
+    font-size: 0.95em;
+    margin-top: 4px;
+    white-space: pre-wrap;
 }
 
 
-.message-bubble .timestamp {
-    font-size: 0.7em; /* 11.2px */
-    color: var(--text-light);
-    display: block; /* Make it take its own line if needed */
-    margin-top: 6px;
-    text-align: right; /* Align timestamp to the right within the bubble */
+.message-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer; /* For zoom functionality */
+    object-fit: cover;
+    margin-bottom: 4px; /* Space before meta or caption */
 }
-.message-bubble.sent .timestamp {
-    color: rgba(255, 255, 255, 0.7); /* Lighter for sent bubble */
-}
-.message-bubble.received .timestamp {
-    color: var(--text-light);
-}
-
-
-.message-status {
-    font-size: 0.7em;
-    margin-left: 6px;
-    color: var(--text-light);
-    display: inline-block;
-}
-.message-bubble.sent .message-status {
-    color: rgba(255, 255, 255, 0.7);
-}
-.message-status.read {
-    color: var(--accent-color) !important; /* Use accent for read, important to override if needed */
-    font-weight: 500;
-}
-
-
-/* --- Message Input --- */
-.message-input-container {
+.message-file-container {
     display: flex;
     align-items: center;
-    padding: 10px 15px;
-    background-color: var(--background-content); /* Match content background */
+    padding: 8px;
+    background-color: rgba(0,0,0,0.04);
+    border-radius: var(--border-radius-sm);
+    margin: 5px 0; /* If there's text content around */
+    cursor: pointer;
+}
+.message-bubble.sent .message-file-container {
+    background-color: rgba(0,0,0,0.06); /* Slightly different for sent */
+}
+.message-file-container .file-icon {
+    font-size: 1.8em;
+    margin-right: 10px;
+    color: var(--primary-color); /* Or inherit bubble text color */
+    flex-shrink: 0;
+}
+.file-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-grow: 1;
+}
+.file-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9em;
+    color: inherit; /* Inherit bubble text color */
+}
+.file-size {
+    font-size: 0.8em;
+    color: var(--text-light);
+}
+.message-bubble.sent .file-size {
+    color: rgba(0,0,0,0.5);
+}
+
+
+.message-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 4px;
+    height: 16px;
+    float: right; /* Pushes to the right bottom corner */
+    clear: both; /* Ensure it doesn't overlap with long text */
+}
+.message-bubble .timestamp {
+    font-size: 0.7em; /* ~11.2px */
+    color: var(--text-light);
+    margin-right: 5px;
+    line-height: 16px;
+}
+.message-bubble.sent .timestamp {
+    color: rgba(0,0,0,0.45);
+}
+
+.message-status {
+    font-size: 0.95em; /* Slightly larger icons */
+    color: var(--text-light);
+    line-height: 16px;
+    display: flex; /* For icon alignment */
+    align-items: center;
+}
+.message-bubble.sent .message-status { /* Default sent/delivered tick color */
+    color: rgba(0,0,0,0.45);
+}
+.message-status.read { /* Blue ticks for read */
+    color: var(--accent-color) !important;
+}
+
+
+/* --- Message Input Area --- */
+.message-input-container {
+    display: flex;
+    align-items: flex-end; /* Align items to bottom for multi-line text input */
+    padding: 8px 12px;
+    background-color: var(--background-main);
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
-    min-height: 60px;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.03); /* Subtle top shadow */
+    min-height: var(--input-area-height);
 }
 
-/* Placeholder for attachment/emoji buttons */
-.input-actions button {
+.input-actions {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+    align-self: flex-end; /* Align with bottom of text input */
+    padding-bottom: 6px; /* Align with text input padding */
+}
+
+.input-actions button,
+.message-input-container button.send-button {
     background: transparent;
     border: none;
-    color: var(--text-light);
-    font-size: 1.5em; /* 24px for icons */
+    color: var(--text-secondary);
+    font-size: 1.5em; /* ~24px icons */
     padding: 8px;
-    margin: 0 5px;
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-.input-actions button:hover {
-    color: var(--primary-color);
-}
-
-
-.message-input-container input[type="text"] {
-    flex-grow: 1;
-    padding: 12px 18px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-pill);
-    font-size: 0.95em;
-    background-color: #fff; /* Or var(--background-main) if you want it slightly off-white */
-    color: var(--text-primary);
-    outline: none;
-    transition: var(--transition-fast);
-}
-.message-input-container input[type="text"]::placeholder {
-    color: var(--text-light);
-}
-.message-input-container input[type="text"]:focus {
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(0, 121, 107, 0.2);
-}
-
-.message-input-container button.send-button { /* Specific class for send button */
-    background-color: var(--primary-color);
-    color: var(--text-on-primary);
-    border: none;
-    border-radius: 50%;
-    width: 42px;
-    height: 42px;
-    font-size: 1.2em; /* For send icon */
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    margin-left: 10px;
-    transition: var(--transition-fast);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
 }
-.message-input-container button.send-button:hover {
-    background-color: var(--primary-dark);
+.input-actions button:hover,
+.message-input-container button.send-button:hover:not(:disabled) {
+    background-color: rgba(0,0,0,0.05);
+    color: var(--text-primary);
 }
 
-/* General Utility */
+.input-actions button:disabled,
+.message-input-container button.send-button:disabled {
+    color: var(--text-disabled) !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+    background-color: transparent !important;
+}
+
+.message-text-input { /* Textarea for messages */
+    flex-grow: 1;
+    padding: 9px 15px;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius-pill);
+    font-size: 0.95em; /* ~15.2px */
+    background-color: var(--background-content);
+    color: var(--text-primary);
+    outline: none;
+    transition: var(--transition-fast);
+    min-height: 22px; /* Base height for single line */
+    max-height: 120px; /* Limit expansion */
+    resize: none;
+    line-height: 1.4;
+    font-family: var(--font-family-main);
+}
+.message-text-input::placeholder {
+    color: var(--text-light);
+}
+.message-text-input:focus {
+    border-color: var(--border-focus);
+    /* box-shadow: 0 0 0 1px var(--border-focus); */ /* Optional subtle focus ring */
+}
+.message-text-input:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+
+.message-input-container button.send-button {
+    margin-left: 8px;
+    align-self: flex-end; /* Align with bottom of text input */
+    padding-bottom: 6px; /* Align with text input padding */
+    background-color: var(--primary-color); /* Distinct send button */
+    color: var(--text-on-primary);
+}
+.message-input-container button.send-button:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+    color: var(--text-on-primary);
+}
+.message-input-container button.send-button:disabled {
+    background-color: var(--primary-color) !important; /* Keep color but reduce opacity */
+}
+.message-input-container button.send-button img, /* If using img/svg icons */
+.message-input-container button.send-button svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor; /* Ensures SVG inherits button color */
+}
+
+
+/* Loading Spinner / Placeholders */
 .loading-spinner {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 30px;
     font-size: 1.1em;
     color: var(--text-secondary);
+    /* Add actual spinner animation here if desired */
 }
-.sidebar-header > div { /* Wrapper for buttons */
-    display: flex;
-    gap: 10px;
+.loading-spinner::after {
+    content: 'Loading...'; /* Simple text or use an animated spinner */
 }
-.sidebar-header .create-group-btn {
-      background-color: var(--primary-color);
-      color: var(--text-on-primary);
-      border: none;
-      padding: 6px 12px; /* Match logout button padding */
-      border-radius: var(--border-radius-sm); /* Match logout button radius */
-      font-size: 0.875em;
-      font-weight: 500;
-  }
-  .sidebar-header .create-group-btn:hover {
-      background-color: var(--primary-dark);
-  }
 
-  .sidebar-header .logout-btn { /* Ensure it uses existing style or this */
-      background: transparent;
-      color: var(--accent-color);
-      border: 1px solid var(--accent-color);
-      padding: 6px 12px;
-      border-radius: var(--border-radius-sm);
-      font-size: 0.875em;
-      font-weight: 500;
-  }
-  .sidebar-header .logout-btn:hover {
-      background: var(--accent-color);
-      color: var(--text-on-accent);
-  }
+/* System Messages (e.g., "User joined", "Group name changed") */
+.system-message {
+    align-self: center;
+    background-color: var(--background-system-message);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: var(--border-radius-pill);
+    font-size: 0.8em;
+    margin: 10px 0;
+    text-align: center;
+    max-width: 80%;
+    box-shadow: var(--shadow-sm);
+}

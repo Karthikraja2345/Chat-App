@@ -1,0 +1,168 @@
+/* src/components/Chat/MessageList.css */
+
+.message-list-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px 5%; /* Use percentage for responsive padding in chat area */
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Small gap between message items */
+}
+.message-list-container.no-messages,
+.message-list-container.loading-messages { /* If you add a loading class */
+    justify-content: center;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 1em;
+}
+
+.message-item { /* Wrapper for each message including sender name and bubble */
+    display: flex;
+    flex-direction: column;
+    max-width: 70%; /* Max width of the entire item */
+}
+.message-item.sent {
+    align-self: flex-end;
+}
+.message-item.received {
+    align-self: flex-start;
+}
+
+.sender-name { /* For group chats, above received bubble */
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--primary-color); /* Or a distinct color per user via JS */
+    margin-bottom: 3px;
+    margin-left: 10px; /* Indent slightly from the bubble's edge */
+    align-self: flex-start; /* Ensure it's above the bubble */
+}
+
+.message-bubble {
+    padding: 7px 10px;
+    border-radius: var(--border-radius-md);
+    word-wrap: break-word;
+    line-height: 1.45;
+    font-size: 0.93em;
+    position: relative;
+    box-shadow: var(--bubble-shadow);
+    text-align: left;
+    min-width: 80px; /* Minimum width to show timestamp nicely */
+}
+.message-bubble.sent {
+    background: green;
+    color: var(--bubble-sent-text);
+    border-bottom-right-radius: var(--border-radius-sm); /* Tail effect */
+}
+.message-bubble.received {
+    background-color: var(--bubble-received-bg);
+    color: var(--bubble-received-text);
+    border-bottom-left-radius: var(--border-radius-sm); /* Tail effect */
+}
+.message-bubble.system { /* For system messages within the list */
+    align-self: center; /* Center system messages */
+    background-color: var(--background-system-message);
+    color: var(--text-secondary);
+    font-size: 0.8em;
+    margin: 8px 0; /* Space around system messages */
+    max-width: 80%;
+    box-shadow: none; /* Usually no shadow for system messages */
+    text-align: center;
+}
+
+
+.message-content { /* Wrapper for text and file/image content */
+    display: flex;
+    flex-direction: column;
+}
+.message-text {
+    white-space: pre-wrap; /* Preserve whitespace and newlines */
+    margin-bottom: 2px; /* Space before meta if no file */
+}
+.message-caption { /* For caption under images/files */
+    font-size: 0.95em;
+    margin-top: 4px;
+    white-space: pre-wrap; /* Allow multiline captions */
+}
+
+/* File/Image specific styles in messages */
+.message-image {
+    max-width: 100%; /* Constrain image within bubble */
+    max-height: 300px; /* Limit image height */
+    border-radius: var(--border-radius-sm);
+    cursor: pointer; /* If you implement image zoom */
+    object-fit: cover;
+    margin-bottom: 4px; /* Space before meta or caption */
+}
+.message-file-container {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: rgba(0,0,0,0.04);
+    border-radius: var(--border-radius-sm);
+    margin: 5px 0;
+    cursor: pointer;
+}
+.message-bubble.sent .message-file-container {
+    background-color: rgba(0,0,0,0.06); /* Slightly different for sent */
+}
+.message-file-container .file-icon {
+    font-size: 1.8em; /* Icon for general files */
+    margin-right: 10px;
+    color: var(--primary-color); /* Or inherit bubble text color */
+    flex-shrink: 0;
+}
+.file-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* For ellipsis on file-name */
+    flex-grow: 1;
+}
+.file-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9em;
+    color: inherit; /* Inherit bubble text color */
+}
+.file-size {
+    font-size: 0.8em;
+    color: var(--text-light);
+}
+.message-bubble.sent .file-size {
+    color: rgba(0,0,0,0.5); /* Adjust if needed for sent bubble */
+}
+
+
+.message-meta { /* Container for timestamp and status icons */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Align to the right within bubble */
+    margin-top: 4px;
+    height: 16px; /* Fixed height for alignment */
+    float: right; /* Pushes to the right bottom corner */
+    clear: both; /* Ensure it doesn't overlap with long text */
+}
+.message-bubble .timestamp {
+    font-size: 0.7em;
+    color: var(--text-light);
+    margin-right: 5px; /* Space before status icon */
+    line-height: 16px; /* Match meta height */
+}
+.message-bubble.sent .timestamp {
+    color: rgba(0,0,0,0.45); /* WhatsApp uses a slightly darker gray for sent timestamp */
+}
+
+.message-status { /* For read receipts etc. */
+    font-size: 0.95em; /* Make status icons slightly larger */
+    color: var(--text-light); /* Default color (e.g., for sent, delivered) */
+    line-height: 16px; /* Match meta height */
+    display: flex;
+    align-items: center;
+}
+.message-bubble.sent .message-status {
+    color: rgba(0,0,0,0.45); /* Match sent timestamp color */
+}
+.message-status.read { /* Specific for 'read' status */
+    color: var(--accent-color) !important; /* WhatsApp blue ticks */
+}

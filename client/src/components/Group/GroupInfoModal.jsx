@@ -195,7 +195,7 @@ const GroupInfoModal = ({ chat, onClose, onGroupUpdated }) => {
                         <ul className="user-list admin-list">
                             {adminsToRender.map(admin => (
                                 <li key={admin._id} className="user-list-item admin-item">
-                                    <img src={admin.profilePicture || '/default-avatar.png'} alt={admin.name} className="avatar-small" />
+                                    <img src="src/assets/male.png" alt={admin.name} className="avatar-small" />
                                     <span>
                                         {admin.name || "N/A"}
                                         {admin._id === currentUserId && " (You)"}
@@ -223,7 +223,7 @@ const GroupInfoModal = ({ chat, onClose, onGroupUpdated }) => {
                                 return (
                                     <li key={member._id} className="user-list-item member-item">
                                         <div className="member-info">
-                                            <img src={member.profilePicture || '/default-avatar.png'} alt={member.name} className="avatar-small" />
+                                            <img src="src/assets/male.png" alt={member.name} className="avatar-small" />
                                             <span>
                                                 {member.name || "N/A"}
                                                 {member._id === currentUserId && " (You)"}
