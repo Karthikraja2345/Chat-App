@@ -120,7 +120,7 @@ const AddMembersModal = ({ chat, onClose, onGroupUpdated }) => {
                     <div className="search-results-for-group">
                         {searchResults.map(userRes => ( // Renamed user to userRes
                             <div key={userRes._id} className="user-search-item" onClick={() => handleUserSelect(userRes)}>
-                                <img src={userRes.profilePicture || '/default-avatar.png'} alt={userRes.name} className="avatar-small" />
+                                <img src="src/assets/male.png" alt={userRes.name} className="avatar-small" />
                                 <span>{userRes.name || userRes.phoneNumber} ({userRes.email})</span>
                             </div>
                         ))}

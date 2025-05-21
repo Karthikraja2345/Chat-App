@@ -7,12 +7,79 @@ html, body {
   box-sizing: border-box !important;
 }
 
+:root {
+    /* --- TRUE Blue Glassy Finish Theme --- */
+    --background-main: #eaf2f8; /* Lighter, cool off-white */
+    --background-content: #ffffff;
+    --background-chat-area: #dde9f5; /* Very light, cool blue-gray */
+    --background-hover: #d6e0ea; /* Soft blue hover */
+    --background-selected-userlist: rgba(0, 102, 170, 0.15); /* Translucent primary blue */
+    --background-system-message: #d6eaf8; /* Light sky blue */
+
+    --text-primary: #2c3e50; /* Dark desaturated blue */
+    --text-secondary: #5d6d7e; /* Medium gray-blue */
+    --text-light: #85929e; /* Lighter gray-blue */
+    --text-on-primary: #ffffff;
+    --text-on-accent: #ffffff;
+    --text-link: #007bff; /* Standard bright blue for links */
+    --text-error: #e74c3c;
+    --text-disabled: #abb2b9;
+
+    --border-color: #c5d6e0; /* Softer blue-gray border */
+    --border-color-light: #d8e2e8;
+    --border-focus: #007bff; /* Bright blue focus */
+
+    --primary-color: #0070a8; /* Your chosen primary blue from screenshot */
+    --primary-dark: #026092; /* Darker shade of primary blue */
+    --accent-color: #007bff; /* A brighter blue for accents, can be same as primary or different */
+    --accent-dark: #0062cc;
+
+    --bubble-sent-bg: #cfe2f3; /* Light, slightly desaturated blue for sent messages */
+    --bubble-sent-text: #1f3a54; /* Darker blue text for readability */
+    --bubble-received-bg: #ffffff;
+    --bubble-received-text: #2c3e50; /* Consistent with primary text */
+    --bubble-shadow: 0 1px 2px rgba(44, 62, 80, 0.1); /* Subtle cool shadow */
+
+    /* --- Sizing & Spacing (can remain similar or be adjusted) --- */
+    --header-height: 58px;
+    --input-area-height: 52px;
+    --sidebar-width: clamp(280px, 28%, 360px); /* Slightly slimmer sidebar */
+
+    /* --- Borders & Shadows (can remain similar or be adjusted) --- */
+    --border-radius-sm: 6px; /* Slightly more rounded */
+    --border-radius-md: 10px;
+    --border-radius-lg: 14px;
+    --border-radius-pill: 28px;
+    --shadow-sm: 0 1px 3px rgba(44, 62, 80, 0.07);
+    --shadow-md: 0 3px 8px rgba(44, 62, 80, 0.12);
+
+    /* --- Transitions --- */
+    --transition-fast: 0.18s ease-out;
+    --transition-medium: 0.28s ease-out;
+
+    /* --- Fonts --- */
+    --font-family-main: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* Inter is a great modern UI font */
+}
+
+/* --- General Page Setup (Mostly Unchanged) --- */
+body {
+    margin: 0;
+    font-family: var(--font-family-main);
+    color: var(--text-primary);
+    background-color: var(--background-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 100vh;
+    overflow: hidden;
+}
+
 #root {
- width: 100% !important;
-  height: 100% !important;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+    height: 100%;
+    display: flex;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 .logo {

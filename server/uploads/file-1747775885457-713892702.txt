@@ -1,0 +1,57 @@
+
+COLUMN LAST_NAME HEADING 'Family Name'; - This is used to change the display column heading not the column in the database.
+CLEAR COLUMNS; - To clear all column headings.
+COLUMN <COLUMN_NAME> CLEAR; - To clear the specific column heading.
+
+DESCRIBE <TABLE_NAME> - Used to give the details of columns of the table with the constraints.
+
+
+ALTER SESSION SET NLS_DATE_FORMAT = "YYYY-MM-DD HH24:MI:SS";
+NLS_DATE_FORMAT- is used to change the system date format for the system or the temporary system.
+SELECT VALUE FROM NLS_SESSION_PARAMETERS WHERE PARAMETER = 'NLS_DATE_FORMAT';
+
+Difference Between RR and YY in Oracle
+
+    YY: Assumes the same century as the current date.
+    RR: Uses century logic based on the two-digit year and helps in smooth transition.
+
+
+Date Format Patterns  (refer the WhatsApp)
+
+
+STORE SET <filename> (with .sql(preferable) or .txt or .config or without extension)- Used to save the current settings of the session and it can be used for the future.
+STORE SET DEFAULTENV -  default file to save the settings
+STORE SET DEFAULTENV.OLD APPEND - we can add some more customised settings in the DEFAULTENV with the .OLD extension
+
+START <filename> - to restore the customised settings which we saved before.
+						(or)
+@<fiename_with_path> 
+
+
+
+Troubleshooting or switching the databases : 
+
+SQLPLUS /NOLOG :
+	-Used to start the SQLPLUS without connecting to the database. 
+	-To run the sql scripts that do not require a database connection(e. g. environment settings).
+	-To troubleshoot the connection issues before actually connecting.
+CONNECT:
+	-Used to connect to the specific user after running the SQLPLUS /NOLOG by CONNECT <username/password@database_name>
+
+
+SET MARKUP HTML ON 
+	-Used to print the output in the html format
+
+SET MARKUP HTML ON PREFORMAT ON
+	-Useful in maintaining the same space, intention. line breaks as in SQLPLUS(mostly for non-table structured format like log file) 
+
+SET COLSEP <SYMBOLS> :
+	-Used to separate the columns using the symbol specified
+SET RECSEP [EACH(after every row) | WRAP(wrapped lines) | OFF(no separator)]:
+	-Used to separate the records by specifying the above keywords.
+SET UNDERLINE '<symbol>':
+	-Used to give as underline for the columns' heading
+
+The above three operations are worked when the PREFORMAT ON.
+
+

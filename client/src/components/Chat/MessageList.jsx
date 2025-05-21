@@ -1,7 +1,7 @@
 // src/components/Chat/MessageList.jsx
 import React from 'react';
 import MessageBubble from './MessageBubble'; // Assuming MessageBubble is in the same folder
-import './ChatPage.css'; // Or a specific MessageList.css
+import './MessageList.css'; // Or a specific MessageList.css
 
 const MessageList = ({ messages, currentUser, loading }) => {
     if (loading) {

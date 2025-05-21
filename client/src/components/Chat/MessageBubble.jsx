@@ -97,9 +97,9 @@ const MessageBubble = ({ message, isCurrentUser }) => {
                     <span className="timestamp-display">{new Date(timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     {isCurrentUser && status && (
                         <span className={`message-status-display status-${status}`}>
-                            {status === 'sent' && '✓'}
-                            {status === 'delivered' && '✓✓'}
-                            {status === 'read' && <span style={{ color: '#53bdeb' }}>✓✓</span>}
+                            {status === 'sent' && '✔️'}
+                            {status === 'delivered' && '☑️'}
+                            {status === 'read' && <span style={{ color: '#53bdeb' }}>✅</span>}
                         </span>
                     )}
                 </div>

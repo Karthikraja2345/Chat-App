@@ -89,10 +89,10 @@ const UserList = ({ chats, onSelectChat, currentUser, selectedChatId }) => {
     // Function to get profile picture for the chat
     const getChatDisplayPicture = (chat) => {
          if (chat.isGroupChat) {
-            return chat.groupIcon || 'src/assets/male.png'; // Placeholder group icon
+            return "src/assets/group.png"; // Placeholder group icon
         }
         const partner = getChatPartner(chat);
-        return partner ? partner.profilePicture || '"src/assets/male.png"' : '"src/assets/male.png"';
+        return "src/assets/male.png";
     };
 
 
@@ -151,7 +151,7 @@ const UserList = ({ chats, onSelectChat, currentUser, selectedChatId }) => {
                                 className={`user-list-item ${selectedChatId === chat._id ? 'selected' : ''}`}
                                 onClick={() => onSelectChat(chat)} // Pass full chat object
                             >
-                                <img src={"src/assets/male.png"} alt="chat-avatar" className="avatar" />
+                                <img src={getChatDisplayPicture(chat)} alt="chat-avatar" className="avatar" />
                                 <div className="user-info">
                                     <span className="user-name">{getChatDisplayName(chat)}</span>
                                     {chat.lastMessage && chat.lastMessage.sender && currentUser && ( // Check lastMessage.sender and currentUser

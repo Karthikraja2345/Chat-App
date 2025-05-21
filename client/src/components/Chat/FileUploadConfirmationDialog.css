@@ -1,150 +1,254 @@
 /* src/components/Chat/FileUploadConfirmationDialog.css */
+
 .confirmation-dialog-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
+    background-color: rgba(44, 62, 80, 0.6); /* Darker, slightly bluish overlay */
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1050; /* High z-index */
+    z-index: 1050;
     padding: 15px;
     box-sizing: border-box;
 }
 
 .confirmation-dialog {
-    background-color: #ffffff;
-    padding: 20px 25px;
-    border-radius: 12px; /* Softer radius */
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+    background-color: var(--background-content);
+    padding: 25px 30px; /* Increased padding */
+    border-radius: var(--border-radius-lg); /* Softer, larger radius */
+    box-shadow: 0 8px 25px rgba(44, 62, 80, 0.2); /* More pronounced shadow */
     width: 100%;
-    max-width: 480px; /* Slightly wider for better layout */
+    max-width: 500px; /* Slightly wider */
     display: flex;
     flex-direction: column;
-    max-height: 90vh; /* Prevent dialog from being too tall */
-    overflow-y: auto; /* Add scroll if content exceeds max-height */
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .confirmation-dialog h2 {
     margin-top: 0;
-    margin-bottom: 20px; /* More space */
-    font-size: 1.5em; /* Larger title */
-    color: #2c3e50; /* Darker, more modern color */
+    margin-bottom: 25px;
+    font-size: 1.6em; /* Larger title */
+    color: var(--text-primary);
     text-align: center;
-    font-weight: 600;
+    font-weight: 500; /* Modern weight */
 }
 
 .file-preview-area {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 180px; /* Taller preview area */
-    max-height: 350px;
-    margin-bottom: 20px;
-    background-color: #f4f6f8; /* Lighter, neutral background */
-    border: 1px dashed #d1d9e0; /* Dashed border */
-    border-radius: 8px;
+    min-height: 200px; /* Taller preview */
+    max-height: 380px;
+    margin-bottom: 25px;
+    background-color: var(--background-main); /* Light blue-gray from theme */
+    border: 2px dashed var(--border-color); /* Slightly thicker dashed border */
+    border-radius: var(--border-radius-md);
     overflow: hidden;
-    padding: 10px; /* Padding inside preview area */
+    padding: 15px;
     box-sizing: border-box;
 }
 
 .file-preview-image,
 .file-preview-video {
     max-width: 100%;
-    max-height: 330px; /* Max height within padding */
+    max-height: 350px;
     object-fit: contain;
     display: block;
-    border-radius: 6px; /* Rounded corners for media */
+    border-radius: var(--border-radius-sm); /* Consistent radius */
 }
 
 .file-icon-large {
-    font-size: 4.5em; /* Larger icon */
-    color: #7f8c8d; /* Softer icon color */
+    font-size: 5em; /* Larger icon */
+    color: var(--text-light);
 }
 
 .file-details {
-    font-size: 0.95em; /* Slightly larger details text */
-    margin-bottom: 20px;
-    line-height: 1.6;
-    color: #34495e;
-    border-top: 1px solid #e0e0e0;
-    padding-top: 15px;
+    font-size: 0.98em; /* Slightly larger */
+    margin-bottom: 25px;
+    line-height: 1.65; /* Improved line height */
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color-light);
+    padding-top: 20px;
 }
 
 .file-details p {
-    margin: 5px 0;
+    margin: 6px 0;
     word-break: break-all;
 }
 
 .file-details strong {
-    color: #2c3e50;
+    color: var(--text-primary);
+    font-weight: 500;
 }
 
 .caption-input {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #bdc3c7;
-    border-radius: 6px;
-    margin-bottom: 25px;
+    padding: 12px 15px; /* Good padding */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md); /* Consistent radius */
+    margin-bottom: 30px; /* More space */
     font-size: 1em;
     resize: vertical;
     box-sizing: border-box;
-    min-height: 70px; /* At least 3 rows visually */
-    transition: border-color 0.2s ease;
+    min-height: 80px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fff; /* Ensure input is white */
 }
 
 .caption-input:focus {
     outline: none;
-    border-color: var(--primary-color, #008069); /* Use theme variable */
-    box-shadow: 0 0 0 2px rgba(0, 128, 105, 0.2); /* Focus ring */
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(0, 112, 168, 0.2);
 }
 
 .dialog-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 12px; /* More space between buttons */
+    gap: 15px; /* More space */
 }
 
 .dialog-actions button {
-    padding: 10px 20px; /* More padding */
+    padding: 12px 25px; /* Larger buttons */
     border: none;
-    border-radius: 6px;
+    border-radius: var(--border-radius-md); /* Consistent radius */
     font-size: 1em;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    min-width: 100px; /* Ensure buttons have decent width */
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    min-width: 110px;
 }
-
+.dialog-actions button:hover {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
 .dialog-actions button:active {
-    transform: translateY(1px); /* Slight press effect */
+    transform: translateY(1px);
 }
 
 .dialog-actions .cancel-btn {
-    background-color: #ecf0f1; /* Lighter cancel button */
-    color: #7f8c8d;
-    border: 1px solid #dce4ec; /* Subtle border */
+    background-color: var(--background-hover); /* Light blue-gray */
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
 }
 .dialog-actions .cancel-btn:hover {
-    background-color: #e0e6e8;
+    background-color: #d6dde5; /* Slightly darker hover */
 }
 
 .dialog-actions .share-btn {
-    background-color: var(--primary-color, #008069);
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
 }
 .dialog-actions .share-btn:hover {
-    background-color: var(--primary-dark, #00705a);
+    background-color: var(--primary-dark);
 }
 .dialog-actions button:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
-    background-color: #bdc3c7; /* More visible disabled state */
+    box-shadow: none;
 }
 .dialog-actions .share-btn:disabled {
-    background-color: var(--primary-color, #008069); /* Keep color but reduce opacity */
-    opacity: 0.6;
+    background-color: var(--primary-color);
+    opacity: 0.5;
+}
+
+/* Styles for generic Modals (GroupInfoModal, UserProfileModal, CreateGroupModal) */
+/* These are from your original Modal.css with theme adjustments */
+.modal-overlay { /* Can be reused or have specific overlays */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(44, 62, 80, 0.6); /* Consistent with FileUpload Dialog */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+}
+.modal-content {
+    background-color: var(--background-content);
+    padding: 25px 30px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    min-width: 320px;
+    max-width: 500px; /* Default max-width for general modals */
+    width: auto;
+    position: relative;
+    animation: modal-fade-in 0.3s ease-out; /* From original Modal.css */
+}
+
+/* modal-fade-in animation from original Modal.css */
+@keyframes modal-fade-in {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color-light);
+}
+.modal-header h2, .modal-header h3 {
+    margin: 0;
+    font-size: 1.25em;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+.modal-close-btn:hover {
+    color: var(--text-primary);
+}
+.modal-body {
+    margin-bottom: 20px;
+    color: var(--text-secondary); /* Default text color for modal body */
+}
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color-light);
+}
+.modal-footer button {
+    padding: 10px 20px; /* Adjusted padding */
+    border-radius: var(--border-radius-md); /* Consistent radius */
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.modal-footer button:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+.modal-footer button.primary {
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+    border: 1px solid var(--primary-color);
+}
+.modal-footer button.primary:hover {
+    background-color: var(--primary-dark);
+}
+.modal-footer button.secondary {
+    background-color: var(--background-hover);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+.modal-footer button.secondary:hover {
+    background-color: #d6dde5;
+    border-color: var(--text-secondary);
 }

@@ -1,47 +1,49 @@
 // src/components/Chat/MessageInput.jsx
-
-import React, { useRef, useEffect, useState } from 'react';
-import { FiPaperclip, FiSmile } from 'react-icons/fi';
-import sendIcon from '../../assets/send.svg'; // Make sure this path is correct or use public path
-import './ChatPage.css';
-
-import './MessageInput.css'; // Ensure this path is correct or remove if not used
-
+import React, { useRef, useEffect } from 'react';
+import { FiPaperclip, FiSmile } from 'react-icons/fi'; // Emoji icon can be re-enabled if needed
+import sendIcon from '../../assets/send.svg'; // Ensure this path is correct
+// Assuming MessageInput.css is not used if ChatPage.css styles this component
+import './MessageInput.css'; // Remove if styles are in ChatPage.css or a global file
 
 const MessageInput = ({
     newMessage,
-    onNewMessageChange,
-    onSendMessage,
-
+    onNewMessageChange, // This function is expected to handle typing events from ChatPage
+    onSendMessage,      // This function is expected to handle the form submission from ChatPage
     onFileSelectedForPreview,
-    isFileBeingProcessed, // From ChatPage: isConfirmationDialogVisible || isActuallyUploadingOrConverting
+    isFileBeingProcessed, // True if a file is being uploaded or confirmed
 }) => {
     const fileInputRef = useRef(null);
-    const isMountedAndSettledRef = useRef(false); // To track if component has mounted and settled
+    const isMountedAndSettledRef = useRef(false);
 
+    // Effect to mark component as settled after initial mount to avoid spurious file change events
     useEffect(() => {
-        // console.log("MessageInput: Mounting. Initial fileInputRef.current?.files:", fileInputRef.current?.files);
-        // Set ref to true after a short delay to ensure component has fully initialized
         const timer = setTimeout(() => {
             isMountedAndSettledRef.current = true;
-            console.log("MessageInput: Component considered fully mounted and settled.");
-        }, 150); // Small delay
+            // console.log("MessageInput: Component considered fully mounted and settled.");
+        }, 150); // Small delay for safety
 
         return () => {
             clearTimeout(timer);
-            isMountedAndSettledRef.current = false; // Reset on unmount
+            isMountedAndSettledRef.current = false;
             // console.log("MessageInput: Unmounting.");
         };
     }, []); // Empty dependency array ensures this runs once on mount and cleanup on unmount
 
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+        if (newMessage.trim() && !isFileBeingProcessed) { // Also check isFileBeingProcessed here
+            onSendMessage(e); // Call the passed-in submit handler
+        }
+    };
+
     const handleAttachmentClick = () => {
-        console.log("MessageInput: Attachment button clicked. isFileBeingProcessed:", isFileBeingProcessed);
+        // console.log("MessageInput: Attachment button clicked. isFileBeingProcessed:", isFileBeingProcessed);
         if (isFileBeingProcessed) {
-            console.log("MessageInput: Attachment click prevented, a file is already being processed.");
+            // console.log("MessageInput: Attachment click prevented, a file is already being processed.");
             return;
         }
         if (fileInputRef.current) {
-            console.log("MessageInput: Programmatically clicking file input.");
+            // console.log("MessageInput: Programmatically clicking file input.");
             fileInputRef.current.click();
         } else {
             console.error("MessageInput: fileInputRef.current is null, cannot click.");
@@ -49,63 +51,59 @@ const MessageInput = ({
     };
 
     const handleFileChange = (e) => {
-        console.log("MessageInput: handleFileChange TRIGGERED. Event isTrusted:", e.isTrusted, "isMountedAndSettledRef.current:", isMountedAndSettledRef.current);
-        console.log("MessageInput: e.target.files:", e.target.files);
+        // console.log("MessageInput: handleFileChange TRIGGERED. Event isTrusted:", e.isTrusted, "isMountedAndSettledRef.current:", isMountedAndSettledRef.current);
+        // console.log("MessageInput: e.target.files:", e.target.files);
 
         const file = e.target.files && e.target.files[0];
 
         if (file) {
-            console.log("MessageInput: File is present in event - Name:", file.name, "Type:", file.type);
+            // console.log("MessageInput: File is present in event - Name:", file.name, "Type:", file.type);
 
-            if (!isMountedAndSettledRef.current) {
-                console.warn("MessageInput: handleFileChange called BEFORE component is fully settled. Ignoring this event for safety. File:", file.name);
+            // Safety check to prevent handling file changes that might fire before the component is fully ready
+            // This can sometimes happen on initial load or fast re-renders with file inputs.
+            if (!isMountedAndSettledRef.current && e.isTrusted) { // Only apply this strict check to trusted events
+                console.warn("MessageInput: handleFileChange called BEFORE component is fully settled or was a programmatic event. Ignoring this file for safety:", file.name);
                 if (fileInputRef.current) {
                     fileInputRef.current.value = ""; // Attempt to clear if a file was somehow pre-selected
                 }
-                return; // Exit early to prevent dialog from opening on initial spurious events
+                return;
             }
 
             if (onFileSelectedForPreview) {
-                console.log("MessageInput: Calling onFileSelectedForPreview with the selected file.");
+                // console.log("MessageInput: Calling onFileSelectedForPreview with the selected file.");
                 onFileSelectedForPreview(file);
             } else {
                 console.warn("MessageInput: onFileSelectedForPreview prop is not available.");
             }
         } else {
-            console.log("MessageInput: handleFileChange triggered, but no file was selected (e.g., user cancelled OS dialog or event was ignored).");
+            // console.log("MessageInput: handleFileChange triggered, but no file was selected.");
         }
 
-        // Reset the file input's value. Essential for allowing re-selection of the same file.
-        // This should not re-trigger onChange by itself.
+        // CRITICAL: Reset the file input's value.
+        // This allows the user to select the same file again if they cancel the first time or want to re-upload.
         if (fileInputRef.current) {
-            // console.log("MessageInput: Resetting file input value.");
             fileInputRef.current.value = "";
-        }
-    };
-  
-   const handleFormSubmit = (e) => {
-        e.preventDefault();
-        if (newMessage.trim()) {
-            onSendMessage(e);
         }
     };
 
     // console.log("MessageInput rendering. isFileBeingProcessed:", isFileBeingProcessed);
 
     return (
-       <form className="message-input-container" onSubmit={handleFormSubmit}>
+        <form className="message-input-container" onSubmit={handleFormSubmit}>
             <div className="input-actions">
                 <button
                     type="button"
                     onClick={handleAttachmentClick}
-                    className="action-button"
+                    className="action-button" // Ensure ChatPage.css has .action-button or use existing styles
                     aria-label="Attach file"
                     title="Attach file"
                     disabled={isFileBeingProcessed}
                 >
                     <FiPaperclip />
                 </button>
-                {/* <button
+                {/* Emoji Picker Button - can be re-enabled */}
+                {/*
+                <button
                     type="button"
                     className="action-button"
                     aria-label="Open emoji picker"
@@ -113,35 +111,49 @@ const MessageInput = ({
                     disabled={isFileBeingProcessed}
                 >
                     <FiSmile />
-                </button> */}
+                </button>
+                */}
             </div>
 
             <input
                 type="file"
                 ref={fileInputRef}
-                style={{ display: 'none' }}
+                style={{ display: 'none' }} // Hidden, triggered programmatically
                 onChange={handleFileChange}
-                accept="image/*,video/*,audio/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,.zip,.rar,application/zip,application/x-rar-compressed"
+                accept="image/*,video/*,audio/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,.zip,.rar,application/zip,application/x-rar-compressed,application/octet-stream"
+                // Added 'application/octet-stream' as a general fallback for unknown file types
             />
 
-            <input
-                type="text"
-                className="message-text-input"
+            {/*
+              The `onNewMessageChange` prop is expected to be the `handleTyping` function from ChatPage.jsx
+              It updates `newMessage` state in ChatPage and handles socket typing events.
+            */}
+            <input // Changed to textarea for multi-line input, styled by ChatPage.css
+                type="text" // Keep as text, but ChatPage.css styles it as .message-text-input
+                className="message-text-input" // This class from ChatPage.css will apply textarea-like styles
                 value={newMessage}
                 onChange={onNewMessageChange}
                 placeholder="Type a message..."
                 autoFocus
                 disabled={isFileBeingProcessed}
+                onKeyDown={(e) => { // Optional: submit on Enter, new line on Shift+Enter
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleFormSubmit(e);
+                    }
+                }}
             />
             <button
                 type="submit"
-                className="message-input-send-btn"
-                disabled={!newMessage.trim()}
+                className="send-button" // Ensure ChatPage.css has .send-button or use existing styles
+                disabled={isFileBeingProcessed || !newMessage.trim()}
             >
-                {/* For Vite, if send.svg is in public/assets: <img src="/assets/send.svg" ... /> */}
-                {/* Or if imported: import sendIcon from '/src/assets/send.svg'; <img src={sendIcon} ... /> */}
-                <img src="/src/assets/send.svg" alt="Send" style={{ width: '20px', height: '20px', display: 'block' }} />
-
+                {/*
+                  The path for `sendIcon` should be correct relative to this file,
+                  or it should be in the `public` folder and accessed with a root path like `/send.svg`.
+                  The styling for the image is now handled by ChatPage.css (.send-button img, .send-button svg)
+                */}
+                <img src={sendIcon} alt="Send" />
             </button>
         </form>
     );
